@@ -4,13 +4,13 @@ from langchain_core.messages import SystemMessage
 from langgraph.runtime import Runtime
 from langgraph.types import interrupt
 
-from src.prompts.event_prompt import event_list_prompt
-from src.typing.agent_states import DatemarkAgentState
-from src.typing.agent_configs import DatemarkAgentConfig
-from src.typing.io_models import EventList
+from prompts.event_prompt import event_list_prompt
+from models.agent_states import DatemarkAgentState
+from models.agent_configs import DatemarkAgentConfig
+from models.io_models import EventList
 
-from src.services.google_authentication import create_oauth_flow_with_credentials
-from src.services.google_calendar import create_calendar_event
+from services.google_authentication import create_oauth_flow_with_credentials
+from services.google_calendar import create_calendar_event
 
 import logging
 
@@ -40,8 +40,8 @@ async def generate_events_list(
         )
         raise ValueError("Invalid response from the model.")
     else:
-        logger.info(f"Detected Events:\n{response.as_string()}")
-        return {"event_list": response.events}
+        logger.info(f"Detected Events:\n{str(response)}")
+        return {"event_list": response}
 
 
 async def select_events_to_add(
@@ -56,7 +56,7 @@ async def select_events_to_add(
         }
     )
 
-    logger.info(f"Selected Events to load to calendar:\n{result["selected_events"].as_string()}")
+    logger.info(f"Selected Events to load to calendar:\n{str(result["selected_events"])}")
 
     # Update the state with the edited text
     return {
@@ -72,7 +72,7 @@ async def add_events_to_calendar(
 
     creds = create_oauth_flow_with_credentials()
 
-    logger.info(f"Inserting the following Events:\n{events.as_string()}")
+    logger.info(f"Inserting the following Events:\n{str(events)}")
 
     for ev in events.events:
         create_calendar_event(creds, ev)

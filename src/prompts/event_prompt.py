@@ -3,7 +3,11 @@ from langchain_core.prompts import PromptTemplate
 
 event_list_prompt = PromptTemplate.from_template("""
 Analyze the following text:
+
+# INPUT TEXT 
+
 {input_text}
+______________________________________________________
 
 Generate a list of events by extracting information from the provided text, in the following format:
 <Events>
@@ -27,4 +31,6 @@ Important:
     1. Try to infer the timezone for each event independently from the event location (best and easyest option)
     2. If option 1. is not viable for any reason, seek for context in the page that helps you define a shared 
         timezone for all events (e.g. a webpage that reports all events in New York, for instance)
+        
+Do not overdo the task, if you don't find any event, do not generate anything as result.
 """)

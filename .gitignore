@@ -116,3 +116,11 @@ venv.bak/
 
 # Docker
 .dockerignore
+
+# Egg files
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+.eggs/

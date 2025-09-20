@@ -1,6 +1,6 @@
 from googleapiclient.discovery import build
 
-from src.typing.io_models import Event
+from models.io_models import Event
 
 
 def create_calendar_event(creds, event: Event):

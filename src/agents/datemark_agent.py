@@ -2,11 +2,15 @@ from langgraph.graph import END, StateGraph
 from langgraph.types import Command
 from langgraph.graph.state import CompiledStateGraph
 
-from src.agents.base import AgentBase
-from src.agents.nodes import generate_events_list, add_events_to_calendar, select_events_to_add
+from agents.base import AgentBase
+from agents.nodes import generate_events_list, add_events_to_calendar, select_events_to_add
 
-from src.typing.agent_states import DatemarkAgentState
-from src.typing.io_models import AgentResponse, EventList
+from models.agent_states import DatemarkAgentState
+from models.io_models import AgentResponse, EventList
+
+import logging
+
+logger = logging.getLogger()
 
 
 def initialize_datemark_agent(checkpointer):
@@ -18,9 +22,9 @@ def initialize_datemark_agent(checkpointer):
     workflow.add_node("add_events_to_calendar", add_events_to_calendar)
 
     workflow.set_entry_point("generate_events_list")
-    workflow.add_edge("generate_events_list", "select_events_to_add")
-    workflow.add_edge("select_events_to_add", "add_events_to_calendar")
-    workflow.add_edge("add_events_to_calendar", END)
+    # workflow.add_edge("generate_events_list", "select_events_to_add")
+    # workflow.add_edge("select_events_to_add", "add_events_to_calendar")
+    workflow.add_edge("generate_events_list", END)
 
     graph = workflow.compile(
         checkpointer=checkpointer
@@ -53,13 +57,16 @@ class DatemarkAgent(AgentBase):
         # selected_indices = input("Enter indices of elements you want (comma-separated): ")
         # indices = [int(x.strip()) for x in selected_indices.split(",")]
 
-        indices = [0, 1, 2, 3]
+        # indices = [0]
+        #
+        # selected_events = EventList(events=[resp["event_list"][i] for i in indices])
+        #
+        # resp = await self.agent.ainvoke(Command(resume={"selected_events": selected_events}),
+        #                                 config=dict(configurable={"thread_id": thread_id}))
 
-        selected_events = EventList(events=[resp["event_list"][i] for i in indices])
-
-        resp = await self.agent.ainvoke(Command(resume={"selected_events": selected_events}),
-                                        config=dict(configurable={"thread_id": thread_id}))
+        logger.info(f"Events found:\n{str(resp['event_list'])}")
 
         return AgentResponse(
-            message="done"
+            message="done",
+            event_list=resp['event_list']
         )

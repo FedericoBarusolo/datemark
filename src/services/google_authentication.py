@@ -2,6 +2,7 @@ import os
 import dotenv
 
 from google_auth_oauthlib.flow import InstalledAppFlow
+from google.oauth2.credentials import Credentials
 
 dotenv.load_dotenv()
 
@@ -20,3 +21,12 @@ def create_oauth_flow_with_credentials():
     flow = InstalledAppFlow.from_client_config(config_file, scopes=['https://www.googleapis.com/auth/calendar'])
     creds = flow.run_local_server(port=8080)
     return creds
+
+
+def create_oauth_credentials_from_token(token):
+    return Credentials(
+        token=token,
+        token_uri=os.environ.get("G_TOKEN_URI"),
+        client_id=os.environ.get("G_CLIENT_ID"),
+        client_secret=os.environ.get("G_CLIENT_SECRET")
+    )

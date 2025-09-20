@@ -6,7 +6,7 @@ from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.graph.state import CompiledStateGraph
 from langchain.chat_models import init_chat_model
 
-from src.typing.io_models import available_llm_models, available_llm_providers, AgentResponse
+from models.io_models import available_llm_models, available_llm_providers, AgentResponse
 
 logger = logging.getLogger(__name__)
 

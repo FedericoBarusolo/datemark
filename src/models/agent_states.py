@@ -1,6 +1,6 @@
 from typing import TypedDict
 
-from src.typing.io_models import EventList
+from models.io_models import EventList
 
 
 class BaseAgentState(TypedDict):

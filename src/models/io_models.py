@@ -1,4 +1,4 @@
-from pydantic import AwareDatetime
+from datetime import datetime
 from typing import List, Literal
 import pytz as tz
 
@@ -13,12 +13,12 @@ TimezoneType = Literal[tuple(tz.all_timezones)]
 
 class Event(BaseModel):
     title: str
-    start_time: AwareDatetime
-    end_time: AwareDatetime
+    start_time: datetime
+    end_time: datetime
     time_zone: TimezoneType
     location: str | None
 
-    def as_string(self):
+    def __str__(self):
         result = ""
 
         result += f"Title: {self.title}\n"
@@ -28,19 +28,31 @@ class Event(BaseModel):
 
         return result
 
+    def model_dump(self, **kwargs):
+        data = super().model_dump(**kwargs)
+        data['start_time'] = self.start_time.isoformat()
+        data['end_time'] = self.end_time.isoformat()
+        return data
+
 
 class EventList(BaseModel):
     events: List[Event]
 
-    def as_string(self):
+    def __str__(self):
         result = ""
 
         for ev in self.events:
-            result += ev.as_string()
+            result += str(ev)
             result += "-" * 20 + "\n"
 
         return result
 
+    def model_dump(self, **kwargs):
+        return {
+            'events': [event.model_dump(**kwargs) for event in self.events]
+        }
+
 
 class AgentResponse(BaseModel):
     message: str
+    event_list: EventList
