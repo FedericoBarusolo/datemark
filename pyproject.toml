@@ -1,0 +1,21 @@
+[project]
+name = "datemark"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.12"
+dependencies = [
+    "google>=3.0.0",
+    "google-api-python-client>=2.182.0",
+    "google-auth>=2.40.3",
+    "google-auth-httplib2>=0.2.0",
+    "google-auth-oauthlib>=1.2.2",
+    "langchain>=0.3.27",
+    "langchain-groq>=0.3.8",
+    "langchain-openai>=0.3.33",
+    "langgraph>=0.6.7",
+    "pydantic>=2.11.9",
+    "pydantic-settings>=2.10.1",
+    "pytest>=8.4.2",
+    "pytest-asyncio>=1.2.0",
+    "pytz>=2025.2",
+]

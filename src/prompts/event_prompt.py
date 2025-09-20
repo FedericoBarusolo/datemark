@@ -1,0 +1,30 @@
+from langchain_core.prompts import PromptTemplate
+
+
+event_list_prompt = PromptTemplate.from_template("""
+Analyze the following text:
+{input_text}
+
+Generate a list of events by extracting information from the provided text, in the following format:
+<Events>
+    <Event0>
+        <title> Event Title </title>
+        <start_time> 2025-01-01T20:30:00+01:00 </start_time>
+        <end_time> 2025-01-01T22:00:00+01:00 </end_time>
+        <location> The O2, Peninsula Square, London SE10 0DX, United Kingdom </location>
+    </Event0>
+    
+    <Event1>
+    ...
+    </Event1>
+</Events>
+
+Important: 
+- All datetime values MUST include timezone information (e.g., +01:00 for CET, +02:00 for CEST)
+- Use ISO 8601 format with timezone offset: YYYY-MM-DDTHH:MM:SS+TZ:TZ
+- If the year is not specified, use current year: {current_year}
+- Try to infer the timezone from the context of the input text, in this way:
+    1. Try to infer the timezone for each event independently from the event location (best and easyest option)
+    2. If option 1. is not viable for any reason, seek for context in the page that helps you define a shared 
+        timezone for all events (e.g. a webpage that reports all events in New York, for instance)
+""")

@@ -1,0 +1,65 @@
+from langgraph.graph import END, StateGraph
+from langgraph.types import Command
+from langgraph.graph.state import CompiledStateGraph
+
+from src.agents.base import AgentBase
+from src.agents.nodes import generate_events_list, add_events_to_calendar, select_events_to_add
+
+from src.typing.agent_states import DatemarkAgentState
+from src.typing.io_models import AgentResponse, EventList
+
+
+def initialize_datemark_agent(checkpointer):
+
+    workflow = StateGraph(DatemarkAgentState)
+
+    workflow.add_node("generate_events_list", generate_events_list)
+    workflow.add_node("select_events_to_add", select_events_to_add)
+    workflow.add_node("add_events_to_calendar", add_events_to_calendar)
+
+    workflow.set_entry_point("generate_events_list")
+    workflow.add_edge("generate_events_list", "select_events_to_add")
+    workflow.add_edge("select_events_to_add", "add_events_to_calendar")
+    workflow.add_edge("add_events_to_calendar", END)
+
+    graph = workflow.compile(
+        checkpointer=checkpointer
+    )
+
+    return graph
+
+
+class DatemarkAgent(AgentBase):
+
+    def _init_agent(self) -> CompiledStateGraph:
+        langgraph_agent_executor = initialize_datemark_agent(
+            checkpointer=self.checkpointer,
+        )
+
+        return langgraph_agent_executor
+
+    async def run_datemark_agent(self, input_text: str, thread_id: str):
+        resp = await self.agent.ainvoke(
+            dict(
+                input_text=input_text
+            ),
+            debug=False,
+            context=dict(model=self.llm,
+                         configurable={"thread_id": thread_id}),
+            config=dict(configurable={"thread_id": thread_id})
+
+        )
+
+        # selected_indices = input("Enter indices of elements you want (comma-separated): ")
+        # indices = [int(x.strip()) for x in selected_indices.split(",")]
+
+        indices = [0, 1, 2, 3]
+
+        selected_events = EventList(events=[resp["event_list"][i] for i in indices])
+
+        resp = await self.agent.ainvoke(Command(resume={"selected_events": selected_events}),
+                                        config=dict(configurable={"thread_id": thread_id}))
+
+        return AgentResponse(
+            message="done"
+        )
