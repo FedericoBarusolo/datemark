@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "Datemark",
+  "version": "1.0",
+  "description": "",
+  "permissions": [
+    "identity",
+    "storage",
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://datemark-852615838189.europe-west1.run.app/*"
+  ],
+  "oauth2": {
+    "client_id": "852615838189-b88rr3ntne7hpf6f7t6k44mei2p2nm7u.apps.googleusercontent.com",
+    "scopes": [
+      "https://www.googleapis.com/auth/calendar.events"
+    ]
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "datemark.html",
+    "default_icon": "icons/datemark_tmp.png"
+  }
+}

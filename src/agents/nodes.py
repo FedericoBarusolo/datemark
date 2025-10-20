@@ -1,19 +1,14 @@
 from datetime import datetime as dt
 
-from langchain_core.messages import SystemMessage
+from langchain_core.messages import HumanMessage
 from langgraph.runtime import Runtime
-from langgraph.types import interrupt
 
 from prompts.event_prompt import event_list_prompt
 from models.agent_states import DatemarkAgentState
 from models.agent_configs import DatemarkAgentConfig
 from models.io_models import EventList
 
-from services.google_authentication import create_oauth_flow_with_credentials
-from services.google_calendar import create_calendar_event
-
 import logging
-
 logger = logging.getLogger()
 
 
@@ -25,12 +20,12 @@ async def generate_events_list(
 
     model_w_structured_output = runtime.context["model"].with_structured_output(schema=EventList)
 
-    logger.info("Processing the textual input: {input_text}")
+    logger.info(f"Processing the textual input: {input_text}")
 
     response = await model_w_structured_output.ainvoke(
         [
-            SystemMessage(content=event_list_prompt.format(input_text=input_text,
-                                                           current_year=dt.now().year))
+            HumanMessage(content=event_list_prompt.format(input_text=input_text,
+                                                          current_year=dt.now().year))
         ]
     )
 
@@ -42,39 +37,3 @@ async def generate_events_list(
     else:
         logger.info(f"Detected Events:\n{str(response)}")
         return {"event_list": response}
-
-
-async def select_events_to_add(
-        state: DatemarkAgentState,
-        runtime: Runtime[DatemarkAgentConfig],
-):
-
-    result = interrupt(
-        # Interrupt information to surface to the client.
-        {
-            "task": "Choose the event ids you want to insert."
-        }
-    )
-
-    logger.info(f"Selected Events to load to calendar:\n{str(result["selected_events"])}")
-
-    # Update the state with the edited text
-    return {
-        "selected_events": result["selected_events"]
-    }
-
-
-async def add_events_to_calendar(
-        state: DatemarkAgentState,
-        runtime: Runtime[DatemarkAgentConfig],
-):
-    events = state.get("selected_events", [])
-
-    creds = create_oauth_flow_with_credentials()
-
-    logger.info(f"Inserting the following Events:\n{str(events)}")
-
-    for ev in events.events:
-        create_calendar_event(creds, ev)
-
-    return {"event_list": events}

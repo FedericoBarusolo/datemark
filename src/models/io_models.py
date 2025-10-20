@@ -5,8 +5,11 @@ import pytz as tz
 from pydantic import BaseModel
 
 
-available_llm_providers = Literal["openai"]
-available_llm_models = Literal["gpt-4o-mini"]
+available_llm_providers = Literal["groq", "openai", "anthropic", "google_vertexai"]
+available_llm_models = Literal["llama-3.1-8b-instant",
+                               "llama-3.3-70b-versatile",
+                               "gpt-4o-mini",
+                               "claude-3-5-haiku-latest"]
 
 TimezoneType = Literal[tuple(tz.all_timezones)]
 

@@ -1,0 +1,248 @@
+body {
+    width: 400px;
+    padding: 10px;
+    font-family: Arial, sans-serif;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+#results {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.event-card {
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    background: #f9f9f9;
+    position: relative;
+}
+
+.event-card.selected {
+    background: #e3f2fd;
+    border-color: #2196F3;
+}
+
+.event-header {
+    display: flex;
+    align-items: start;
+    gap: 10px;
+}
+
+.event-header input[type="checkbox"] {
+    margin-top: 3px;
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+.event-header h4 {
+    margin: 0 0 10px 0;
+    color: #333;
+    flex: 1;
+}
+
+.event-details p {
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+.error {
+    color: red;
+    padding: 10px;
+}
+
+.no-events {
+    color: #666;
+    padding: 10px;
+}
+
+.select-all-container {
+    padding: 10px;
+    background: #f5f5f5;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.select-all-container input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.select-all-container label {
+    cursor: pointer;
+    user-select: none;
+    font-weight: 500;
+}
+
+.events-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.selected-count {
+    color: #2196F3;
+    font-size: 14px;
+}
+
+#submitBtn {
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    margin-top: 10px;
+}
+
+#submitBtn:hover:not(:disabled) {
+    background-color: #1976D2;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Enhanced Extract Button Styles */
+#extractBtn {
+    position: relative;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 16px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+#extractBtn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s ease;
+}
+
+#extractBtn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+#extractBtn:hover:not(:disabled)::before {
+    left: 100%;
+}
+
+#extractBtn:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 10px rgba(102, 126, 234, 0.4);
+}
+
+#extractBtn:disabled {
+    background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+    box-shadow: none;
+}
+
+/* Sparkle animation */
+@keyframes sparkle {
+    0%, 100% { opacity: 0; transform: scale(0); }
+    50% { opacity: 1; transform: scale(1); }
+}
+
+#extractBtn .sparkle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: white;
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+/* Icon in button */
+#extractBtn .icon {
+    display: inline-block;
+    margin-right: 8px;
+    font-size: 18px;
+    vertical-align: middle;
+}
+
+/* Editable field styles */
+.editable-field {
+    display: inline-block;
+    min-width: 60px;
+    padding: 2px 6px;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    cursor: text;
+    transition: all 0.2s ease;
+    background: transparent;
+}
+
+.editable-field:hover {
+    background: rgba(33, 150, 243, 0.1);
+    border-color: rgba(33, 150, 243, 0.3);
+}
+
+.editable-field:focus {
+    outline: none;
+    background: white;
+    border-color: #2196F3;
+    box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+}
+
+.editable-title {
+    display: block;
+    width: 100%;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 4px 6px;
+    margin-bottom: 10px;
+}
+
+.event-details input[type="date"],
+.event-details input[type="time"] {
+    border: 1px solid transparent;
+    border-radius: 3px;
+    padding: 2px 6px;
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: transparent;
+}
+
+.event-details input[type="date"]:hover,
+.event-details input[type="time"]:hover {
+    background: rgba(33, 150, 243, 0.1);
+    border-color: rgba(33, 150, 243, 0.3);
+}
+
+.event-details input[type="date"]:focus,
+.event-details input[type="time"]:focus {
+    outline: none;
+    background: white;
+    border-color: #2196F3;
+    box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+}

@@ -17,7 +17,7 @@ class AgentBase:
         self,
         temperature: float = 0.0,
         llm_provider: available_llm_providers = "groq",
-        llm_model: available_llm_models = "llama-3.1-8b-instant",
+        llm_model: available_llm_models = "llama-3.3-70b-versatile",
         debug: bool = False,
         checkpointer: BaseCheckpointSaver | None = None,
     ):
