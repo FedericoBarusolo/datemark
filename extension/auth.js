@@ -71,7 +71,6 @@ class AuthManager {
    */
   async callCloudRun(endpoint, data) {
     try {
-      // const identityToken = await this.getIdentityToken("datemark");
       const oauthToken = await this.getGoogleAuthToken(true);
 
       const response = await fetch(`${this.AGENT_URL}${endpoint}`, {
@@ -84,7 +83,18 @@ class AuthManager {
       });
 
       if (!response.ok) {
-        throw new Error(`Cloud Run request failed: ${response.status}`);
+        // Handle quota exceeded error specifically
+        if (response.status === 429) {
+          const errorData = await response.json();
+          const errorMessage = errorData.detail || "Period quota exceeded. Please upgrade your plan.";
+
+          throw new Error(errorMessage);
+        }
+
+        // Handle other errors
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.detail || `Cloud Run request failed: ${response.status}`;
+        throw new Error(errorMessage);
       }
 
       return await response.json();

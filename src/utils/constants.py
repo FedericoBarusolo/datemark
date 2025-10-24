@@ -1,3 +1,7 @@
 TEST_REQ_SUCC="SUCCESS"
 TEST_REQ_INVALID="INVALID"
 TEST_REQ_ERR="ERROR"
+
+USG_DB_TIERS="subscription_tiers"
+USG_DB_USERS="user_subscriptions"
+USG_DB_USAGE="daily_usage"

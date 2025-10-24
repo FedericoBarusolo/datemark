@@ -4,9 +4,10 @@ import requests
 import uvicorn
 
 from langgraph.checkpoint.memory import InMemorySaver
-from fastapi import FastAPI, Header
+from fastapi import FastAPI, Header, HTTPException, status
 
 from auth.auth import validate_access_token
+from auth.quota import get_or_create_user_quota, increment_user_quota
 from agents.datemark_agent import DatemarkAgent
 
 import logging
@@ -30,9 +31,31 @@ async def datemark_agent(body: dict, authorization: str = Header(...)):
 
     # authorization performed at code-level to avoid identity token exposure to the network
     try:
-        validate_access_token(authorization)
+        user_info = validate_access_token(authorization)
+        logger.info("User Authenticated!")
+        logger.info(user_info)
     except requests.exceptions.HTTPError as e:
         raise(requests.exceptions.HTTPError, f"Error during authentication: {e}")
+
+    # verify user quota
+    user_id = user_info.get('id') or user_info.get('sub')
+    quota_info = get_or_create_user_quota(user_id=user_id)
+
+    logger.info(quota_info)
+
+    if quota_info["remaining"] == -1:
+        logger.info(f"User {user_id} has unlimited plan: access granted!")
+
+    elif quota_info['remaining'] < 1:
+        logger.info(f"Exceeded quota for user {user_id}: raising HTTP Error")
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Period quota exceeded. Please upgrade your plan.",
+            headers={"Retry-After": "2592000"}  # Seconds until next month (optional)
+        )
+
+    logger.info(f"Remaining quota for user {user_id}: {quota_info['remaining']} "
+                f"of {limit if (limit:=quota_info['monthly_limit'])!=-1 else '<unlimited>'}")
 
     input_text = body["input_text"]
     logger.info(f"Received input text: {input_text}")
@@ -43,6 +66,10 @@ async def datemark_agent(body: dict, authorization: str = Header(...)):
                        llm_provider=os.environ.get("LLM_PROVIDER"),
                        llm_model=os.environ.get("LLM_MODEL"))
     response = await ag.run_datemark_agent(input_text, thread_id="foo")
+
+    increment_user_quota(user_id=user_id)
+    logger.info(f"Remaining quota for user {user_id}: {quota_info['remaining']-1} "
+                f"of {limit if (limit:=quota_info['monthly_limit'])!=-1 else '<unlimited>'} after usage")
 
     return response.event_list.model_dump()
 

@@ -26,7 +26,7 @@ async function handleMessage(request, sender, sendResponse) {
 
       case 'fetchList':
         const list = await authManager.callCloudRun('/agent', request.data);
-        sendResponse({ success: true, data: list });
+        sendResponse({ success: true, data: list }).catch(error => sendResponse({success: false, error: error.message}));;
         break;
 
       case 'addToCalendar':

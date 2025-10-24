@@ -117,6 +117,9 @@ document.getElementById('extractBtn').addEventListener('click', async () => {
       data: {"input_text": text,
              url: location.href}
     });
+    if (!result.success) {
+      throw new Error(result.error);
+    }
 
     displayEvents(result.data);
 
@@ -124,6 +127,7 @@ document.getElementById('extractBtn').addEventListener('click', async () => {
     extractBtn.disabled = false;
   } catch (error) {
     extractBtn.innerHTML = 'Error - Try Again';
+    alert(error);
     setTimeout(() => {
       extractBtn.innerHTML = originalText;
       extractBtn.disabled = false;
