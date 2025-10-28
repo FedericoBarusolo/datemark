@@ -2,25 +2,28 @@ import os
 from typing import Optional, Dict, Any
 from datetime import date
 
-from utils.usage_db import UsageDB
+from utils import usage_db as udb
 
 import logging
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
 
 
-def get_user_quota(user_id: str) -> Optional[Dict[str, Any]]:
+def get_user_quota(user_id: str, usage_db: udb.UsageDB | None = None) -> Optional[Dict[str, Any]]:
     """
     Get user's quota information including tier limits and current usage.
 
     Args:
         user_id: Unique user identifier
+        usage_db: Instance of usage db if already present
 
     Returns:
         Dict with monthly_limit, current_usage, remaining, tier_name
     """
-    usage_db = UsageDB(project_id=os.environ.get("GOOGLE_CLOUD_PROJECT"),
-                       database_name=os.environ.get("USAGE_DB_NAME"))
+    if usage_db is None:
+        usage_db = udb.UsageDB(project_id=os.environ.get("GOOGLE_CLOUD_PROJECT"),
+                               database_name=os.environ.get("USAGE_DB_NAME"))
 
     user = usage_db.get_user(user_id)
     if not user:
@@ -61,8 +64,8 @@ def get_or_create_user_quota(user_id: str):
     Returns:
         Dict with monthly_limit, current_usage, remaining, tier_name
     """
-    usage_db = UsageDB(project_id=os.environ.get("GOOGLE_CLOUD_PROJECT"),
-                       database_name=os.environ.get("USAGE_DB_NAME"))
+    usage_db = udb.UsageDB(project_id=os.environ.get("GOOGLE_CLOUD_PROJECT"),
+                           database_name=os.environ.get("USAGE_DB_NAME"))
 
     logging.info(f"Authenticated user {user_id}")
 
@@ -72,9 +75,10 @@ def get_or_create_user_quota(user_id: str):
                              tier_name="free")
         logging.info(f"First access: user {user_id} created!")
 
-    return get_user_quota(user_id)
+    return get_user_quota(user_id, usage_db)
 
-def increment_user_quota(user_id: str):
+
+def increment_user_usage(user_id: str):
     """
     Increment user's monthly quota by 1 unit.
 
@@ -84,8 +88,8 @@ def increment_user_quota(user_id: str):
     Returns:
         New usage count
     """
-    usage_db = UsageDB(project_id=os.environ.get("GOOGLE_CLOUD_PROJECT"),
-                       database_name=os.environ.get("USAGE_DB_NAME"))
+    usage_db = udb.UsageDB(project_id=os.environ.get("GOOGLE_CLOUD_PROJECT"),
+                           database_name=os.environ.get("USAGE_DB_NAME"))
 
     user = usage_db.get_user(user_id)
     if not user:

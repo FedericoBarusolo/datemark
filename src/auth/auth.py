@@ -1,5 +1,5 @@
 import requests
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 
 def validate_access_token(authorization: str) -> Dict[str, Any]:
     """

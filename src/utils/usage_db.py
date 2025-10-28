@@ -1,4 +1,4 @@
-from typing import Optional, Dict, Any
+from typing import Optional
 from datetime import date, datetime
 
 from utils import constants as cst
@@ -21,31 +21,21 @@ class UsageDB:
     - daily_usage: Daily usage counts per user
     """
 
-    def __init__(self, project_id: str, database_name: str, credentials_path: Optional[str] = None):
+    def __init__(self, project_id: str, database_name: str):
         """
         Initialize Firestore client.
 
         Args:
             project_id: GCP project ID
             database_name: Database name
-            credentials_path: Optional path to service account JSON
         """
-        if credentials_path:
-            self.db = firestore.Client.from_service_account_json(
-                credentials_path,
-                project=project_id
-            )
-        else:
-            # Uses application default credentials
-            self.db = firestore.Client(project=project_id, database=database_name)
+        self.db = firestore.Client(project=project_id, database=database_name)
 
     def _clear_all_collections(self):
-        """Delete all documents in all collections (use with caution!)"""
-        collections = [
-            cst.USG_DB_TIERS,
-            cst.USG_DB_USERS,
-            cst.USG_DB_USAGE
-        ]
+        """
+        Delete all documents in all collections (use with caution!)
+        """
+        collections = cst.USG_DB_COLLECTIONS
 
         for collection_name in collections:
             docs = self.db.collection(collection_name).stream()
@@ -55,7 +45,9 @@ class UsageDB:
         logger.info("All collections cleared")
 
     def create_subscription_tier(self, tier: SubscriptionTier):
-        """Create or update a subscription tier."""
+        """
+        Create or update a subscription tier.
+        """
         self.db.collection(cst.USG_DB_TIERS).document(tier.tier_name).set({
             'monthly_limit': tier.monthly_limit,
             'price_usd': tier.price_usd
@@ -73,28 +65,10 @@ class UsageDB:
             self._clear_all_collections()
 
         # Default subscription tiers
-        default_tiers = [
-            SubscriptionTier(
-                tier_name="free",
-                monthly_limit=3,
-                price_usd=0.00
-            ),
-            SubscriptionTier(
-                tier_name="basic",
-                monthly_limit=50,
-                price_usd=9.99
-            ),
-            SubscriptionTier(
-                tier_name="pro",
-                monthly_limit=200,
-                price_usd=29.99
-            ),
-            SubscriptionTier(
-                tier_name="unlimited",
-                monthly_limit=-1,
-                price_usd=99.99
-            )
-        ]
+        default_tiers = [SubscriptionTier(tier_name=t["tier_name"],
+                                         monthly_limit=t["monthly_limit"],
+                                         price_usd=t["price_usd"])
+                        for t in cst.USG_DB_TIERS_INFO]
 
         for tier in default_tiers:
             self.create_subscription_tier(tier)

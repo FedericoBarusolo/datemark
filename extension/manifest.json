@@ -10,10 +10,10 @@
     "scripting"
   ],
   "host_permissions": [
-    "https://datemark-852615838189.europe-west1.run.app/*"
+    "https://datemark-dev-852615838189.europe-west1.run.app/*"
   ],
   "oauth2": {
-    "client_id": "852615838189-b88rr3ntne7hpf6f7t6k44mei2p2nm7u.apps.googleusercontent.com",
+    "client_id": "852615838189-gdc9n4r9l3k48202o9f556v1ct4rjtor.apps.googleusercontent.com",
     "scopes": [
       "https://www.googleapis.com/auth/calendar.events",
       "https://www.googleapis.com/auth/userinfo.email"
@@ -24,6 +24,6 @@
   },
   "action": {
     "default_popup": "datemark.html",
-    "default_icon": "icons/datemark_tmp.png"
+    "default_icon": "icons/icon.png"
   }
 }

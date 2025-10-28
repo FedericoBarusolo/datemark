@@ -7,7 +7,7 @@ from langgraph.checkpoint.memory import InMemorySaver
 from fastapi import FastAPI, Header, HTTPException, status
 
 from auth.auth import validate_access_token
-from auth.quota import get_or_create_user_quota, increment_user_quota
+from auth.quota import get_or_create_user_quota, increment_user_usage
 from agents.datemark_agent import DatemarkAgent
 
 import logging
@@ -50,7 +50,7 @@ async def datemark_agent(body: dict, authorization: str = Header(...)):
         logger.info(f"Exceeded quota for user {user_id}: raising HTTP Error")
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            detail="Period quota exceeded. Please upgrade your plan.",
+            detail="Period quota exceeded. Please contact the developer at: infodatemark@gmail.com.",
             headers={"Retry-After": "2592000"}  # Seconds until next month (optional)
         )
 
@@ -67,7 +67,7 @@ async def datemark_agent(body: dict, authorization: str = Header(...)):
                        llm_model=os.environ.get("LLM_MODEL"))
     response = await ag.run_datemark_agent(input_text, thread_id="foo")
 
-    increment_user_quota(user_id=user_id)
+    increment_user_usage(user_id=user_id)
     logger.info(f"Remaining quota for user {user_id}: {quota_info['remaining']-1} "
                 f"of {limit if (limit:=quota_info['monthly_limit'])!=-1 else '<unlimited>'} after usage")
 

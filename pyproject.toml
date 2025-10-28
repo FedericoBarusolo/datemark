@@ -23,3 +23,15 @@ dependencies = [
     "pytz>=2025.2",
     "uvicorn>=0.36.0",
 ]
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "0.1.0"
+version_scheme = "pep440"
+version_provider = "pep621"
+update_changelog_on_bump = true
+major_version_zero = true
+version_files = [
+    "pyproject.toml:version",
+    "extension/manifest.json:version"
+]
