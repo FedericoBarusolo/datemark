@@ -1,6 +1,6 @@
 [project]
 name = "datemark"
-version = "0.0.0"
+version = "0.1.0"
 description = "Add your description here"
 requires-python = ">=3.12"
 dependencies = [
@@ -26,7 +26,7 @@ dependencies = [
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "0.0.0"
+version = "0.1.0"
 version_scheme = "pep440"
 version_provider = "pep621"
 update_changelog_on_bump = true
