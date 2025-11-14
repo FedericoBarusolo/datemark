@@ -1,3 +1,5 @@
+import asyncio
+from datetime import timedelta
 from datetime import datetime as dt
 
 from langchain_core.messages import HumanMessage
@@ -6,7 +8,7 @@ from langgraph.runtime import Runtime
 from prompts.event_prompt import event_list_prompt
 from models.agent_states import DatemarkAgentState
 from models.agent_configs import DatemarkAgentConfig
-from models.io_models import EventList
+from models.io_models import Event, EventList
 
 import logging
 logger = logging.getLogger()
@@ -15,7 +17,23 @@ logger = logging.getLogger()
 async def generate_events_list(
         state: DatemarkAgentState,
         runtime: Runtime[DatemarkAgentConfig],
-):
+) -> dict[str, EventList]:
+    """
+    Generate a list of events from textual input using an LLM.
+
+    Processes natural language text to extract structured event information
+    including titles, times, locations, and time zones.
+
+    Args:
+        state: The current agent state containing the input text to process.
+        runtime: The runtime context containing the configured LLM model.
+
+    Returns:
+        A dictionary with key "event_list" containing the extracted EventList.
+
+    Raises:
+        ValueError: If the model response is not a valid EventList instance.
+    """
     input_text = state["input_text"]
 
     model_w_structured_output = runtime.context["model"].with_structured_output(schema=EventList)
@@ -37,3 +55,49 @@ async def generate_events_list(
     else:
         logger.info(f"Detected Events:\n{str(response)}")
         return {"event_list": response}
+
+
+async def validate_event_times(event: Event) -> Event:
+    """
+    Validate and correct event time constraints.
+
+    Ensures that the event's end time is not before its start time. If the
+    end time is invalid, it is automatically adjusted to be 1 hour after
+    the start time.
+
+    Args:
+        event: The event to validate and potentially correct.
+
+    Returns:
+        The validated event with corrected end time if necessary.
+    """
+    if event.end_time < event.start_time:
+        event.end_time = event.start_time + timedelta(hours=1)
+    return event
+
+
+async def validate_events(
+        state: DatemarkAgentState,
+        runtime: Runtime[DatemarkAgentConfig],
+) -> dict[str, EventList]:
+    """
+    Validate all events in the state concurrently.
+
+    Applies time validation to all events in the event list simultaneously
+    using asyncio.gather for optimal performance.
+
+    Args:
+        state: The current agent state containing the event list to validate.
+        runtime: The runtime context (unused but required by node signature).
+
+    Returns:
+        A dictionary with key "event_list" containing the validated EventList.
+    """
+    event_list = state["event_list"]
+
+    # Apply validate_event_times to all events concurrently
+    validated_events = await asyncio.gather(
+        *[validate_event_times(event) for event in event_list.events]
+    )
+
+    return {"event_list": EventList(events=validated_events)}
