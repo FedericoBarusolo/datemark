@@ -38,6 +38,8 @@ pids/
 coverage/
 *.lcov
 .nyc_output/
+.coverage
+htmlcov/
 
 # Dependency directories
 jspm_packages/

@@ -10,7 +10,7 @@
     "scripting"
   ],
   "host_permissions": [
-    "https://datemark-dev-852615838189.europe-west1.run.app/*"
+    "https://datemark-852615838189.europe-west1.run.app/*"
   ],
   "oauth2": {
     "client_id": "852615838189-gdc9n4r9l3k48202o9f556v1ct4rjtor.apps.googleusercontent.com",
