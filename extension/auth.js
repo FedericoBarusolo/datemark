@@ -2,7 +2,7 @@ class AuthManager {
   constructor() {
     this.SCOPES = ['https://www.googleapis.com/auth/calendar.events'];
     this.CLIENT_ID = '852615838189-gdc9n4r9l3k48202o9f556v1ct4rjtor.apps.googleusercontent.com';
-    this.AGENT_URL = 'https://datemark-dev-852615838189.europe-west1.run.app';
+    this.AGENT_URL = 'https://datemark-852615838189.europe-west1.run.app';
   }
 
   /**
