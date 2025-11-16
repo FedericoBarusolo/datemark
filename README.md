@@ -1,10 +1,12 @@
-# Datemark
+# [Datemark](https://federicobarusolo.github.io/datemark)
 
 Datemark is a Chrome extension that automatically extracts events from web pages and seamlessly adds them to your Google Calendar.
 
 By leveraging generative AI, Datemark intelligently scans any webpage for event information (title, date, time,
 location), and allows you to review and edit these details before adding them to your Google Calendar in just a few
 clicks.
+
+Visit Datemark website [here](https://federicobarusolo.github.io/datemark).
 
 ## Features
 
