@@ -378,6 +378,7 @@ async function submitSelectedEvents() {
   const events = Array.from(filteredEvents).map(item => {
     return {
       summary: item.title,
+      location: item.location,
       start: {
         dateTime: item.start_time,
         timeZone: item.time_zone
