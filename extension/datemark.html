@@ -4,6 +4,22 @@
     <link rel="stylesheet" href="styles/popup.css">
 </head>
 <body>
+    <div class="filter-container">
+        <div class="filter-label-container">
+            <label for="userQuery" class="filter-label">Filtering Query (optional)</label>
+            <span class="info-icon" title="Add optional criteria to filter events. If used, the request will consume one additional monthly usage credit">?</span>
+        </div>
+        <input
+            type="text"
+            id="userQuery"
+            class="user-query-input"
+            placeholder="Filter events (e.g., only rock concerts)"
+            maxlength="50"
+        />
+        <div class="character-count">
+            <span id="charCount">0</span>/50
+        </div>
+    </div>
     <button id="extractBtn" class="extract-button">
         Extract Events
     </button>
