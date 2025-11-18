@@ -35,6 +35,7 @@ class Event(BaseModel):
         data = super().model_dump(**kwargs)
         data['start_time'] = self.start_time.isoformat()
         data['end_time'] = self.end_time.isoformat()
+        data["day_of_week"] = self.start_time.strftime("%A")  # Enables filtering based on weekend yes/no
         return data
 
 

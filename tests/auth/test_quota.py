@@ -108,13 +108,22 @@ def test_get_or_create_user_quota(user_id, tier_name, monthly_usage, output, mon
 
 
 @pytest.mark.unit
-@pytest.mark.parametrize("user_id,tier_name,monthly_usage,output",
-                         [("New User", "free", 0, None),
-                          (cst.TEST_USR_EXIST, "free", 2, 3),
-                          (cst.TEST_USR_EXIST, "unlimited", 100, 101)
+@pytest.mark.parametrize("user_id,tier_name,monthly_usage,increment,output",
+                         [("Unknown User", "free", 0, None, None),
+                          (cst.TEST_USR_EXIST, "free", 2, None, 3),
+                          (cst.TEST_USR_EXIST, "unlimited", 100, None, 101),
+
+                          # same tests but with increment=2
+                          ("Unknown User", "free", 0, 2, None),
+                          (cst.TEST_USR_EXIST, "free", 2, 2, 4),
+                          (cst.TEST_USR_EXIST, "unlimited", 100, 2, 102)
                           ])
-def test_increment_user_usage(user_id, tier_name, monthly_usage, output, monkeypatch):
+def test_increment_user_usage(user_id, tier_name, monthly_usage, increment, output, monkeypatch):
     monkeypatch.setattr(usage_db, 'UsageDB', MockUsageDB)
     os.environ["USAGE_DB_NAME"] = json.dumps({"tier_name": tier_name, "monthly_usage": monthly_usage})
 
-    assert qt.increment_user_usage(user_id) == output
+    args = dict(user_id=user_id)
+    if increment is not None:
+        args.update(dict(increment=increment))
+
+    assert qt.increment_user_usage(**args) == output

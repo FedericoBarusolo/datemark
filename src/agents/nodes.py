@@ -5,7 +5,8 @@ from datetime import datetime as dt
 from langchain_core.messages import HumanMessage
 from langgraph.runtime import Runtime
 
-from prompts.event_prompt import event_list_prompt
+from prompts.event_prompt import (event_list_prompt,
+                                  filter_events_by_user_query_prompt)
 from models.agent_states import DatemarkAgentState
 from models.agent_configs import DatemarkAgentConfig
 from models.io_models import Event, EventList
@@ -54,6 +55,35 @@ async def generate_events_list(
         raise ValueError("Invalid response from the model.")
     else:
         logger.info(f"Detected Events:\n{str(response)}")
+        return {"event_list": response}
+
+
+async def filter_events_by_user_query(
+        state: DatemarkAgentState,
+        runtime: Runtime[DatemarkAgentConfig],
+) -> dict[str, EventList]:
+
+    event_list = state["event_list"]
+    user_query = state["user_query"]
+
+    model_w_structured_output = runtime.context["model"].with_structured_output(schema=EventList)
+
+    logger.info(f"Filtering events based on user query: {user_query}")
+
+    response = await model_w_structured_output.ainvoke(
+        [
+            HumanMessage(content=filter_events_by_user_query_prompt.format(event_list=event_list.model_dump(),
+                                                                           user_query=user_query))
+        ]
+    )
+
+    if not isinstance(response, EventList):
+        logger.info(
+            "The response from the model is not valid. Expected a SystemDetails."
+        )
+        raise ValueError("Invalid response from the model.")
+    else:
+        logger.info(f"Filtered Events:\n{str(response)}")
         return {"event_list": response}
 
 

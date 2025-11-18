@@ -50,25 +50,39 @@ async def datemark_agent(body: dict, authorization: str = Header(...)):
         logger.info(f"Exceeded quota for user {user_id}: raising HTTP Error")
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            detail="Period quota exceeded. Please contact the developer at: infodatemark@gmail.com.",
-            headers={"Retry-After": "2592000"}  # Seconds until next month (optional)
+            detail="Period quota exceeded. Please contact the developer at: infodatemark@gmail.com."
+        )
+
+    elif quota_info['remaining'] < 2 and body.get("user_query"):
+        logger.info(f"Insufficient quota with user_query for user {user_id}: raising HTTP Error")
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Only one left usage credit in the period quota (filtering query requires 2). Please either "
+                   "delete the filtering query or contact the developer at: infodatemark@gmail.com."
         )
 
     logger.info(f"Remaining quota for user {user_id}: {quota_info['remaining']} "
                 f"of {limit if (limit:=quota_info['monthly_limit'])!=-1 else '<unlimited>'}")
 
     input_text = body["input_text"]
+    user_query = body.get("user_query")
     logger.info(f"Received input text: {input_text}")
+
+    if user_query is not None:
+        logger.info("---------------------------------------")
+        logger.info(f"Received user query: {user_query}")
 
     checkpointer = InMemorySaver()
 
     ag = DatemarkAgent(checkpointer=checkpointer,
                        llm_provider=os.environ.get("LLM_PROVIDER"),
                        llm_model=os.environ.get("LLM_MODEL"))
-    response = await ag.run_datemark_agent(input_text, thread_id="foo")
+    response = await ag.run_datemark_agent(input_text, user_query=user_query, thread_id="foo")
 
-    increment_user_usage(user_id=user_id)
-    logger.info(f"Remaining quota for user {user_id}: {quota_info['remaining']-1} "
+    usg_increment = 1 + 1 * (user_query is not None)
+
+    increment_user_usage(user_id=user_id, increment=usg_increment)
+    logger.info(f"Remaining quota for user {user_id}: {quota_info['remaining']-usg_increment} "
                 f"of {limit if (limit:=quota_info['monthly_limit'])!=-1 else '<unlimited>'} after usage")
 
     return response.event_list.model_dump()
