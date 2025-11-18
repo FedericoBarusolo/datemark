@@ -34,3 +34,28 @@ Important:
         
 Do not overdo the task, if you don't find any event, do not generate anything as result.
 """)
+
+filter_events_by_user_query_prompt = PromptTemplate.from_template("""
+Analyze the following list of events:
+
+# INPUT EVENTS
+
+{event_list}
+______________________________________________________
+
+Now filter the events in the list based on the following user query:
+
+# USER QUERY
+
+{user_query}
+______________________________________________________
+
+Instructions:
+- The ONLY action you can do is remove elements from the list
+- Do NOT consider day of week for the output model
+- Absolutely DO NOT add, remove or change any information to events (other than day of week)
+- If a user query requires information or context you don't have, just avoid applying any filter
+  (e.g. events near my house --> IGNORE, you don't know where the user lives
+        events near Milan --> OK, Milan is an absolute reference)
+- DO NOT invent, interpret or make assumptions. If you're not sure enough do not apply any filter
+""")

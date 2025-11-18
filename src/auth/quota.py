@@ -3,6 +3,7 @@ from typing import Optional, Dict, Any
 from datetime import date
 
 from utils import usage_db as udb
+from utils import constants as cst
 
 import logging
 
@@ -34,7 +35,7 @@ def get_user_quota(user_id: str, usage_db: udb.UsageDB | None = None) -> Optiona
         return None
 
     # Get today's usage
-    current_month = date.today().strftime("%Y-%m")
+    current_month = date.today().strftime(cst.DATE_STANDARD_MONTH)
     usage_count = usage_db.get_monthly_usage(user_id, current_month)
 
     # Calculate remaining
@@ -52,7 +53,7 @@ def get_user_quota(user_id: str, usage_db: udb.UsageDB | None = None) -> Optiona
     }
 
 
-def get_or_create_user_quota(user_id: str):
+def get_or_create_user_quota(user_id: str, user_email: Optional[str] = None):
     """
     Get user's quota information including tier limits and current usage, if the
     user_id associated to the passed oauth_token does not match any user_id in the
@@ -60,6 +61,7 @@ def get_or_create_user_quota(user_id: str):
 
     Args:
         user_id: Unique user identifier
+        user_email: Optional user email
 
     Returns:
         Dict with monthly_limit, current_usage, remaining, tier_name
@@ -72,18 +74,20 @@ def get_or_create_user_quota(user_id: str):
     user = usage_db.get_user(user_id)
     if not user:
         usage_db.create_user(user_id=user_id,
-                             tier_name="free")
+                             tier_name="free",
+                             user_email=user_email)
         logging.info(f"First access: user {user_id} created!")
 
     return get_user_quota(user_id, usage_db)
 
 
-def increment_user_usage(user_id: str):
+def increment_user_usage(user_id: str, increment: int = 1):
     """
-    Increment user's monthly quota by 1 unit.
+    Increment user's monthly quota by an amount of units defined by argument increment.
 
     Args:
         user_id: Unique user identifier
+        increment: Amount to increment (default: 1)
 
     Returns:
         New usage count
@@ -95,7 +99,7 @@ def increment_user_usage(user_id: str):
     if not user:
         return None
 
-    current_month = date.today().strftime("%Y-%m")
-    usage_count = usage_db.increment_usage(user_id=user_id, increment=1, month=current_month)
+    current_month = date.today().strftime(cst.DATE_STANDARD_MONTH)
+    usage_count = usage_db.increment_usage(user_id=user_id, increment=increment, month=current_month)
 
     return usage_count

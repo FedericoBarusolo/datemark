@@ -2,7 +2,7 @@ import re
 import json
 import requests
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 
 from models.db_collections import UserSubscription, SubscriptionTier
 from utils import constants as cst
@@ -78,7 +78,7 @@ class MockUsageDB:
     existing_users: List
 
     # use database_name to pass content for testing purposes
-    def __init__(self, project_id, database_name: str | None = None):
+    def __init__(self, project_id, database_name: Optional[str] = None):
         print("mocking class UsageDB")
         self.project_id = project_id
         db_info = json.loads(database_name)
@@ -87,12 +87,13 @@ class MockUsageDB:
 
         self.existing_users = [cst.TEST_USR_EXIST]
 
-    def get_user(self, user_id):
+    def get_user(self, user_id, user_email: Optional[str] = None):
         print("mocking function get_user of class UsageDB")
         if user_id in self.existing_users:
             return UserSubscription(
                 user_id=user_id,
                 tier_name=self.database_info.tier_name,
+                user_email=user_email,
                 subscribed_at=datetime.strptime(cst.TEST_DATE, cst.DATE_STANDARD_FMT),
                 expires_at=datetime.strptime(cst.TEST_DATE_2, cst.DATE_STANDARD_FMT),
                 stripe_subscription_id="",
@@ -118,7 +119,7 @@ class MockUsageDB:
         print("mocking function get_monthly_usage of class UsageDB")
         return self.database_info.monthly_usage
 
-    def create_user(self, user_id, tier_name="free"):
+    def create_user(self, user_id, user_email: Optional[str] = None, tier_name:str ="free"):
         self.existing_users.append(user_id)
         return
 

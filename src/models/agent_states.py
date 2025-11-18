@@ -9,5 +9,6 @@ class BaseAgentState(TypedDict):
 
 class DatemarkAgentState(BaseAgentState):
     input_text: str
+    user_query: str | None
     event_list: EventList
     selected_events: EventList
