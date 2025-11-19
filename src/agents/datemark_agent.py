@@ -2,7 +2,8 @@ from langgraph.graph import END, StateGraph
 from langgraph.graph.state import CompiledStateGraph
 
 from agents.base import AgentBase
-from agents.nodes import (generate_events_list,
+from agents.nodes import (preprocess_web_page,
+                          generate_events_list,
                           validate_events,
                           filter_events_by_user_query)
 
@@ -30,11 +31,13 @@ def initialize_datemark_agent(checkpointer) -> CompiledStateGraph:
     """
     workflow = StateGraph(DatemarkAgentState)
 
+    workflow.add_node("preprocess_web_page", preprocess_web_page)
     workflow.add_node("generate_events_list", generate_events_list)
     workflow.add_node("filter_events_by_user_query", filter_events_by_user_query)
     workflow.add_node("validate_events", validate_events)
 
-    workflow.set_entry_point("generate_events_list")
+    workflow.set_entry_point("preprocess_web_page")
+    workflow.add_edge("preprocess_web_page", "generate_events_list")
     workflow.add_conditional_edges("generate_events_list",
                                    lambda state: state.get("user_query") is not None,
                                    {

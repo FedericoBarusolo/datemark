@@ -37,3 +37,73 @@ USG_DB_TIERS_INFO = [
         "monthly_limit": -1,
         "price_usd": 99.99
     }]
+
+HTML_TAGS_TO_REMOVE = {
+    # Scripting and styling
+    'script',  # JavaScript code
+    'style',  # CSS styling rules
+    'noscript',  # Fallback content for disabled JavaScript
+    'code',  # Code blocks
+    'pre',  # Preformatted text
+
+    # Metadata and resources
+    'meta',  # Page metadata (charset, description, etc.)
+    'link',  # External resource links (CSS, favicons, etc.)
+
+    # Navigation and UI elements
+    'nav',  # Navigation menus
+    'header',  # Page header sections
+    'footer',  # Page footer sections
+    'aside',  # Sidebar content
+    'menu',  # Menu elements
+    'button',  # Buttons (unlikely to contain event info)
+
+    # Forms and interactive elements
+    'form',  # Forms
+    'input',  # Input fields
+    'select',  # Dropdowns
+    'textarea',  # Text areas
+
+    # Media elements
+    'img',  # Images
+    'svg',  # Scalable vector graphics
+    'video',  # Video players
+    'audio',  # Audio players
+    'canvas',  # Canvas elements
+    'picture',  # Picture elements
+    'source',  # Media sources
+
+    # Embedded content
+    'iframe',  # Inline frames (embedded pages, widgets)
+    'embed',  # Embedded content
+
+    # Advertising and tracking
+    'ads',  # Ad containers (custom tag)
+    'advertisement',  # Advertisement sections
+}
+
+HTML_TAGS_TO_KEEP = {
+    # Text content
+    'html', 'head', 'body', 'p', 'span', 'div', 'section', 'article', 'main',
+
+    # Headings
+    'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+
+    # Lists
+    'ul', 'ol', 'li', 'dl', 'dt', 'dd',
+
+    # Text formatting (semantic content)
+    'strong', 'b', 'em', 'i', 'mark', 'small', 'del', 'ins', 'sub', 'sup',
+
+    # Tables (if events in tables)
+    'table', 'thead', 'tbody', 'tfoot', 'tr', 'td', 'th', 'caption',
+
+    # Semantic content
+    'time', 'address', 'blockquote', 'q', 'cite',
+
+    # Links (event links are important!)
+    'a',
+
+    # Other potentially useful
+    'label', 'legend', 'figcaption', 'details', 'summary',
+}
