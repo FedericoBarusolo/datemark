@@ -89,9 +89,9 @@ function sendMessage(action, data = {}) {
   });
 }
 
-// Extract inner text from page
-function extractText() {
-  return document.body.innerText;
+// Extract entire page HTML
+function extractHTML() {
+  return document.documentElement.outerHTML;
 }
 
 // Format date for input field (YYYY-MM-DD)
@@ -190,7 +190,7 @@ document.getElementById('extractBtn').addEventListener('click', async () => {
 
     const extracted = await chrome.scripting.executeScript({
       target: {tabId: tab.id},
-      function: extractText
+      function: extractHTML
     });
 
     const text = extracted[0].result;

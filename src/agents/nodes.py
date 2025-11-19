@@ -1,6 +1,10 @@
+import re
 import asyncio
 from datetime import timedelta
 from datetime import datetime as dt
+
+from bs4 import BeautifulSoup
+from markdownify import markdownify as md
 
 from langchain_core.messages import HumanMessage
 from langgraph.runtime import Runtime
@@ -11,8 +15,51 @@ from models.agent_states import DatemarkAgentState
 from models.agent_configs import DatemarkAgentConfig
 from models.io_models import Event, EventList
 
+from utils import constants as cst
+
 import logging
 logger = logging.getLogger()
+
+
+async def preprocess_web_page(
+        state: DatemarkAgentState,
+        runtime: Runtime[DatemarkAgentConfig],
+) -> dict[str, str]:
+    """
+    Preprocess HTML content by removing unwanted tags and converting to markdown,
+    in order to minimize content size for optimized tokenization while keeping useful
+    content structure.
+
+    Cleans HTML by removing script, style, navigation, and other non-content elements,
+    then converts the remaining content to markdown format with normalized whitespace.
+
+    Args:
+        state: The current agent state containing the input HTML text to process.
+        runtime: The runtime context (unused but required by node signature).
+
+    Returns:
+        A dictionary with key "input_text" containing the cleaned markdown content.
+    """
+    input_html = state["input_text"]
+    soup = BeautifulSoup(input_html, 'html.parser')
+
+    for tag_name in cst.HTML_TAGS_TO_REMOVE:
+        for tag in soup.find_all(tag_name):
+            tag.decompose()
+
+    # Simple conversion without content filtering
+    markdown = md(str(soup))
+
+    # Remove multiple blank lines
+    markdown = re.sub(r'\n{3,}', '\n\n', markdown)
+
+    # Remove trailing whitespace
+    markdown = '\n'.join(line.rstrip() for line in markdown.split('\n'))
+
+    # Ensure single newline at end
+    markdown = markdown.rstrip() + '\n'
+
+    return {"input_text": markdown}
 
 
 async def generate_events_list(

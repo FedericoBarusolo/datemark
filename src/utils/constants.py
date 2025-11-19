@@ -37,3 +37,47 @@ USG_DB_TIERS_INFO = [
         "monthly_limit": -1,
         "price_usd": 99.99
     }]
+
+HTML_TAGS_TO_REMOVE = [
+        # Scripting and styling
+        'script',  # JavaScript code
+        'style',  # CSS styling rules
+        'noscript',  # Fallback content for disabled JavaScript
+        'code',  # Code blocks
+        'pre',  # Preformatted text
+
+        # Metadata and resources
+        'meta',  # Page metadata (charset, description, etc.)
+        'link',  # External resource links (CSS, favicons, etc.)
+
+        # Navigation and UI elements
+        'nav',  # Navigation menus
+        'header',  # Page header sections
+        'footer',  # Page footer sections
+        'aside',  # Sidebar content
+        'menu',  # Menu elements
+        'button',  # Buttons (unlikely to contain event info)
+
+        # Forms and interactive elements
+        'form',  # Forms
+        'input',  # Input fields
+        'select',  # Dropdowns
+        'textarea',  # Text areas
+
+        # Media elements
+        'img',  # Images
+        'svg',  # Scalable vector graphics
+        'video',  # Video players
+        'audio',  # Audio players
+        'canvas',  # Canvas elements
+        'picture',  # Picture elements
+        'source',  # Media sources
+
+        # Embedded content
+        'iframe',  # Inline frames (embedded pages, widgets)
+        'embed',  # Embedded content
+
+        # Advertising and tracking
+        'ads',  # Ad containers (custom tag)
+        'advertisement',  # Advertisement sections
+    ]

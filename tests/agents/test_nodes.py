@@ -107,3 +107,48 @@ async def test_validate_event_times(event, output):
                                                                         location="Mos Eisley, Chalmun's Cantina")])})])
 async def test_validate_events(state, runtime, output):
     assert output == await nd.validate_events(state, runtime)
+
+
+@pytest.mark.unit
+@pytest.mark.asyncio
+@pytest.mark.parametrize("state,runtime,output",
+                         [
+                             (DatemarkAgentState(input_text="""
+                             <html>
+                                 <head>
+                                     <script>console.log('remove me');</script>
+                                     <style>.class { color: red; }</style>
+                                     <meta charset="UTF-8">
+                                     <link rel="stylesheet" href="style.css">
+                                 </head>
+                                 <body>
+                                     <header>Header content</header>
+                                     <nav>Navigation</nav>
+                                     <div>Big Big Concert</div>
+                                     <p>Event description here.</p>
+                                     <div class="jet-listing-dynamic-field__content">London<br>O2</div>
+                                     <div class="jet-listing jet-listing-dynamic-field display-inline">
+                                        <div class="jet-listing-dynamic-field__inline-wrap">
+                                            <div class="jet-listing-dynamic-field__content">1 january 2025</div>
+                                        </div>
+                                     </div>	
+                                     <img src="image.jpg" alt="image">
+                                     <footer>Footer content</footer>
+                                     <iframe src="external.html"></iframe>
+                                     <noscript>No JS content</noscript>
+                                     <svg><circle/></svg>
+                                 </body>
+                             </html>
+                             """),
+                              {},
+                              {"input_text": "Big Big Concert\n\n"
+                                             "Event description here.\n\n"
+                                             "London\nO2\n\n"
+                                             "1 january 2025\n"}),
+
+                             (DatemarkAgentState(input_text="<html><body><p>Simple text</p></body></html>"),
+                              {},
+                              {"input_text": "Simple text\n"}),
+                         ])
+async def test_preprocess_web_page(state, runtime, output):
+    assert output == await nd.preprocess_web_page(state, runtime)
