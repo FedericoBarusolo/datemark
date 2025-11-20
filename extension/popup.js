@@ -244,11 +244,13 @@ function displayEvents(data) {
   if (!allEvents || allEvents.length === 0) {
     resultsDiv.innerHTML = '<p class="no-events">No events found on this page.</p>';
     document.getElementById('submitBtn').classList.add('hidden');
+    document.getElementById('submitInfo').classList.add('hidden');
     return;
   }
 
   // Show submit button
   document.getElementById('submitBtn').classList.remove('hidden');
+  document.getElementById('submitInfo').style.display = '';
   document.getElementById('submitBtn').disabled = true;
 
   // Build HTML for events

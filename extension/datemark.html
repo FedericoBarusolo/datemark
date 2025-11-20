@@ -7,7 +7,8 @@
     <div class="filter-container">
         <div class="filter-label-container">
             <label for="userQuery" class="filter-label">Filtering Query (optional)</label>
-            <span class="info-icon" title="Add optional criteria to filter events. If used, the request will consume one additional monthly usage credit">?</span>
+            <span class="info-icon" title="Add optional criteria to filter events. Fill this field BEFORE extracting events.
+If used, the request will consume one additional monthly usage credit.">?</span>
         </div>
         <input
             type="text"
@@ -25,6 +26,16 @@
     </button>
     <div id="results"></div>
     <button id="submitBtn" class="hidden" disabled>Add Events to Calendar</button>
+    <div style="display: flex; justify-content: flex-end; gap: 8px;">
+        <span id="submitInfo" class="info-icon" style="display: none;text-align: left;" title="Datemark makes mistakes! Double check and edit your events before submitting">?</span>
+        <div class="footer-text" style="text-align: right;">
+            Like Datemark?
+            <a href="https://chromewebstore.google.com/detail/datemark/aoldddfllaacoiihcnjhkhljoaoogabc"
+               class="rate-link"
+               target="_blank">Rate it!
+            </a>
+        </div>
+    </div>
     <script src="popup.js"></script>
 </body>
 </html>
