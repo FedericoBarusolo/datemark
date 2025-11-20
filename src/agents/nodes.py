@@ -136,20 +136,26 @@ async def filter_events_by_user_query(
     logger.info(f"Filtering events based on user query: {user_query}")
 
     current_time = dt.now()
-    response = await model_w_structured_output.ainvoke(
-        [
-            HumanMessage(content=filter_events_by_user_query_prompt.format(event_list=event_list.model_dump(),
-                                                                           user_query=user_query,
-                                                                           current_date=current_time.strftime(
-                                                                               cst.DATE_STANDARD_FMT)))
-        ]
-    )
+    try:
+        response = await model_w_structured_output.ainvoke(
+            [
+                HumanMessage(content=filter_events_by_user_query_prompt.format(event_list=event_list.model_dump(),
+                                                                               user_query=user_query,
+                                                                               current_date=current_time.strftime(
+                                                                                   cst.DATE_STANDARD_FMT)))
+            ]
+        )
+    except Exception as e:
+        logger.info(
+            f"Error generating response: {e}"
+        )
+        return {"event_list": event_list}
 
     if not isinstance(response, EventList):
         logger.info(
             "The response from the model is not valid. Expected a SystemDetails."
         )
-        raise ValueError("Invalid response from the model.")
+        return {"event_list": event_list}
     else:
         logger.info(f"Filtered Events:\n{str(response)}")
         return {"event_list": response}
@@ -169,7 +175,7 @@ async def validate_event_times(event: Event) -> Event:
     Returns:
         The validated event with corrected end time if necessary.
     """
-    if event.end_time < event.start_time:
+    if event.end_time is None or event.end_time < event.start_time:
         event.end_time = event.start_time + timedelta(hours=1)
     return event
 
