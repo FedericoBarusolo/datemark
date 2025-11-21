@@ -1,3 +1,9 @@
+## 1.0.1 (2025-11-21)
+
+### Refactor
+
+- **popup.js**: update query placeholders list
+
 ## 1.0.0 (2025-11-21)
 
 ### Feat
