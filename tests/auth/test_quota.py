@@ -1,8 +1,10 @@
 import os
+import re
 import json
 
 import pytest
 from datetime import date
+from fastapi import HTTPException
 
 from utils import constants as cst
 from auth import quota as qt
@@ -127,3 +129,41 @@ def test_increment_user_usage(user_id, tier_name, monthly_usage, increment, outp
         args.update(dict(increment=increment))
 
     assert qt.increment_user_usage(**args) == output
+
+@pytest.mark.unit
+@pytest.mark.parametrize("user_id,body,tier_name,monthly_usage,output",
+                         [("usr_id",
+                           {"input_text": "sample_test"},
+                           "free",
+                           2,
+                           {"status_code": 200, "message": "ok"}),
+
+                          ("usr_id",
+                           {"input_text": "sample_test"},
+                           "free",
+                           49,
+                           {"status_code": 200, "message": "ok"}),
+
+                          ("usr_id",
+                           {"input_text": "sample_test"},
+                           "free",
+                           50,
+                           {"status_code": 429,
+                            "message": "Period quota exceeded."}),
+
+                          ("usr_id",
+                           {"input_text": "sample_test", "user_query": "sample_query"},
+                           "free",
+                           49,
+                           {"status_code": 429,
+                            "message": "Only one left usage credit in the period quota (filtering query requires 2)."})
+                          ])
+def test_verify_user_quota(user_id, body, tier_name, monthly_usage, output, monkeypatch):
+    monkeypatch.setattr(usage_db, 'UsageDB', MockUsageDB)
+    os.environ["USAGE_DB_NAME"] = json.dumps({"tier_name": tier_name, "monthly_usage": monthly_usage})
+
+    if output["status_code"] == 429:
+        with pytest.raises(HTTPException, match=re.escape(output["message"])):
+            qt.verify_user_quota(user_id, body)
+    else:
+        assert qt.verify_user_quota(user_id, body)

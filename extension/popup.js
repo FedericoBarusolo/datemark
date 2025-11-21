@@ -3,12 +3,11 @@ let selectedEventIndices = new Set();
 
 // Rotating placeholder examples
 const placeholderExamples = [
-  'only rock concerts',
   'events in May',
-  'only free events',
-  'events in London only',
+  'events in London',
   'events in the weekend',
-  'only events after 19:00',
+  'only rock concerts',
+  'events starting after 19:00',
   'workshops and seminars'
 ];
 

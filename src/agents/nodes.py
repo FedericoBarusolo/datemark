@@ -84,7 +84,7 @@ async def generate_events_list(
 
     model_w_structured_output = runtime.context["model"].with_structured_output(schema=EventList)
 
-    logger.info(f"Processing the textual input: {input_text}")
+    logger.info(f"Processing the textual input: {input_text[:500]}")
 
     current_time = dt.now()
     response = await model_w_structured_output.ainvoke(

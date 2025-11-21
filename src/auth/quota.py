@@ -5,6 +5,8 @@ from datetime import date
 from utils import usage_db as udb
 from utils import constants as cst
 
+from fastapi import HTTPException, status
+
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -103,3 +105,53 @@ def increment_user_usage(user_id: str, increment: int = 1):
     usage_count = usage_db.increment_usage(user_id=user_id, increment=increment, month=current_month)
 
     return usage_count
+
+
+def verify_user_quota(user_id: str, body: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Verify that user has sufficient quota remaining to perform the requested operation.
+
+    Checks the user's remaining monthly quota and raises HTTPException if:
+    - User has exceeded their quota (remaining < 1)
+    - User has only 1 credit left but is making a filtering query (requires 2 credits)
+
+    Users with unlimited plans (remaining == -1) always pass verification.
+
+    Args:
+        user_id: Unique user identifier
+        body: Request body dictionary, checked for 'user_query' field to determine
+              if this is a filtering query requiring 2 credits
+
+    Raises:
+        HTTPException: 429 status if quota is exceeded or insufficient for the operation
+
+    Returns:
+        Dict containing user quota information with keys: user_id, tier_name,
+        monthly_limit, current_month, usage_this_month, remaining, is_unlimited, status
+    """
+    quota_info = get_or_create_user_quota(user_id=user_id)
+
+    logger.info(quota_info)
+
+    if quota_info["remaining"] == -1:
+        logger.info(f"User {user_id} has unlimited plan: access granted!")
+
+    elif quota_info['remaining'] < 1:
+        logger.info(f"Exceeded quota for user {user_id}: raising HTTP Error")
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Period quota exceeded. Please contact the developer at: infodatemark@gmail.com."
+        )
+
+    elif quota_info['remaining'] < 2 and body.get("user_query"):
+        logger.info(f"Insufficient quota with user_query for user {user_id}: raising HTTP Error")
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Only one left usage credit in the period quota (filtering query requires 2). Please either "
+                   "delete the filtering query or contact the developer at: infodatemark@gmail.com."
+        )
+
+    logger.info(f"Remaining quota for user {user_id}: {quota_info['remaining']} "
+                f"of {limit if (limit:=quota_info['monthly_limit'])!=-1 else '<unlimited>'}")
+
+    return quota_info

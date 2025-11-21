@@ -125,3 +125,8 @@ class MockUsageDB:
 
     def increment_usage(self, user_id, month, increment=1):
         return self.get_monthly_usage(user_id=user_id, current_month=month) + increment
+
+
+def mock_init_chat_model(model, model_provider, temperature):
+    print("mocking function init_chat_model")
+    return None

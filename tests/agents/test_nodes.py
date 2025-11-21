@@ -76,6 +76,7 @@ async def test_validate_event_times(event, output):
                                                                                              "%Y-%m-%d %H.%M"),
                                                                         time_zone="Tatooine/Mos Eisley",
                                                                         location="Mos Eisley, Chalmun's Cantina"),
+                                                  # End time before start time
                                                   Event.model_construct(title="Cantina Band Concert#2",
                                                                         start_time=dt.strptime("2025-01-02 "
                                                                                                "20.00",
@@ -83,6 +84,13 @@ async def test_validate_event_times(event, output):
                                                                         end_time=dt.strptime("2025-01-02 "
                                                                                              "19.00",
                                                                                              "%Y-%m-%d %H.%M"),
+                                                                        time_zone="Tatooine/Mos Eisley",
+                                                                        location="Mos Eisley, Chalmun's Cantina"),
+                                                  # Missing end time
+                                                  Event.model_construct(title="Cantina Band Concert#3",
+                                                                        start_time=dt.strptime("2025-01-02 "
+                                                                                               "20.00",
+                                                                                               "%Y-%m-%d %H.%M"),
                                                                         time_zone="Tatooine/Mos Eisley",
                                                                         location="Mos Eisley, Chalmun's Cantina")])
                                               ),{},
@@ -97,6 +105,15 @@ async def test_validate_event_times(event, output):
                                                                         time_zone="Tatooine/Mos Eisley",
                                                                         location="Mos Eisley, Chalmun's Cantina"),
                                                   Event.model_construct(title="Cantina Band Concert#2",
+                                                                        start_time=dt.strptime("2025-01-02 "
+                                                                                               "20.00",
+                                                                                               "%Y-%m-%d %H.%M"),
+                                                                        end_time=dt.strptime("2025-01-02 "
+                                                                                             "21.00",
+                                                                                             "%Y-%m-%d %H.%M"),
+                                                                        time_zone="Tatooine/Mos Eisley",
+                                                                        location="Mos Eisley, Chalmun's Cantina"),
+                                                  Event.model_construct(title="Cantina Band Concert#3",
                                                                         start_time=dt.strptime("2025-01-02 "
                                                                                                "20.00",
                                                                                                "%Y-%m-%d %H.%M"),
