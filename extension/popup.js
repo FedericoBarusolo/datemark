@@ -8,7 +8,8 @@ const placeholderExamples = [
   'events in the weekend',
   'only rock concerts',
   'events starting after 19:00',
-  'workshops and seminars'
+  'workshops and seminars',
+  'events tomorrow'
 ];
 
 let placeholderIndex = 0;
