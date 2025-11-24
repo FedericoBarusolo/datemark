@@ -1,8 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "Datemark",
+  "name": "Datemark - Extract Events from Web Pages with AI",
+  "short_name": "Datemark",
   "version": "1.0.1",
-  "description": "",
+  "description": "AI-powered tool to automatically extract events from any webpage and add them to Google Calendar in seconds.",
   "permissions": [
     "identity",
     "storage",
