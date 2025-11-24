@@ -93,6 +93,7 @@ class UsageDB:
             self,
             user_id: str,
             tier_name: str = "free",
+            user_email: Optional[str] = None,
             stripe_subscription_id: Optional[str] = None,
             expires_at: Optional[datetime] = None
     ) -> UserSubscription:
@@ -102,6 +103,7 @@ class UsageDB:
         Args:
             user_id: Unique user identifier
             tier_name: Subscription tier (default: "free")
+            user_email: Optional user email
             stripe_subscription_id: Optional Stripe subscription ID
             expires_at: Optional expiration datetime
 
@@ -119,6 +121,9 @@ class UsageDB:
             'status': SubscriptionStatus.ACTIVE.value
         }
 
+        if user_email:
+            user_data["user_email"] = user_email
+
         if stripe_subscription_id:
             user_data['stripe_subscription_id'] = stripe_subscription_id
 
@@ -131,6 +136,7 @@ class UsageDB:
             user_id=user_id,
             tier_name=tier_name,
             subscribed_at=datetime.now(),
+            user_email=user_email,
             expires_at=expires_at,
             stripe_subscription_id=stripe_subscription_id,
             status=SubscriptionStatus.ACTIVE.value
@@ -148,6 +154,7 @@ class UsageDB:
             user_id=user_id,
             tier_name=data['tier_name'],
             subscribed_at=data['subscribed_at'],
+            user_email=data.get("user_email"),
             expires_at=data.get('expires_at'),
             stripe_subscription_id=data.get('stripe_subscription_id'),
             status=data['status']

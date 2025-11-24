@@ -1,6 +1,87 @@
 let allEvents = [];
 let selectedEventIndices = new Set();
 
+// Rotating placeholder examples
+const placeholderExamples = [
+  'events in May',
+  'events in London',
+  'events in the weekend',
+  'only rock concerts',
+  'events starting after 19:00',
+  'workshops and seminars',
+  'events tomorrow'
+];
+
+let placeholderIndex = 0;
+let placeholderInterval = null;
+let typingInterval = null;
+let isUserFocused = false;
+
+// Typing animation for placeholder
+function typeText(element, text, callback) {
+  let charIndex = 0;
+  element.placeholder = '';
+
+  clearInterval(typingInterval);
+  typingInterval = setInterval(() => {
+    if (charIndex < text.length) {
+      element.placeholder += text.charAt(charIndex);
+      charIndex++;
+    } else {
+      clearInterval(typingInterval);
+      if (callback) callback();
+    }
+  }, 50); // Speed of typing (50ms per character)
+}
+
+// Initialize rotating placeholders
+function initPlaceholderRotation() {
+  const userQueryInput = document.getElementById('userQuery');
+
+  // Type the first placeholder immediately
+  typeText(userQueryInput, placeholderExamples[0]);
+
+  // Start rotation
+  placeholderInterval = setInterval(() => {
+    if (!isUserFocused && !userQueryInput.value) {
+      placeholderIndex = (placeholderIndex + 1) % placeholderExamples.length;
+      typeText(userQueryInput, placeholderExamples[placeholderIndex]);
+    }
+  }, 4000); // Wait 4 seconds between phrases (includes typing time + display time)
+
+  // Handle focus events
+  userQueryInput.addEventListener('focus', () => {
+    isUserFocused = true;
+    clearInterval(typingInterval);
+    if (!userQueryInput.value) {
+      userQueryInput.placeholder = 'e.g., only rock concerts';
+    }
+  });
+
+  userQueryInput.addEventListener('blur', () => {
+    isUserFocused = false;
+    if (!userQueryInput.value) {
+      typeText(userQueryInput, placeholderExamples[placeholderIndex]);
+    }
+  });
+}
+
+// Initialize on load
+document.addEventListener('DOMContentLoaded', () => {
+  initPlaceholderRotation();
+  initCharacterCounter();
+});
+
+// Character counter for user query
+function initCharacterCounter() {
+  const userQueryInput = document.getElementById('userQuery');
+  const charCount = document.getElementById('charCount');
+
+  userQueryInput.addEventListener('input', () => {
+    charCount.textContent = userQueryInput.value.length;
+  });
+}
+
 // Send message to background script
 function sendMessage(action, data = {}) {
   return new Promise((resolve) => {
@@ -8,9 +89,9 @@ function sendMessage(action, data = {}) {
   });
 }
 
-// Extract inner text from page
-function extractText() {
-  return document.body.innerText;
+// Extract entire page HTML
+function extractHTML() {
+  return document.documentElement.outerHTML;
 }
 
 // Format date for input field (YYYY-MM-DD)
@@ -99,6 +180,7 @@ function revertInputField(index, field, event) {
 document.getElementById('extractBtn').addEventListener('click', async () => {
   const extractBtn = document.getElementById('extractBtn');
   const originalText = extractBtn.innerHTML;
+  const userQuery = document.getElementById('userQuery').value.trim();
 
   extractBtn.disabled = true;
   extractBtn.innerHTML = 'Extracting...';
@@ -108,15 +190,25 @@ document.getElementById('extractBtn').addEventListener('click', async () => {
 
     const extracted = await chrome.scripting.executeScript({
       target: {tabId: tab.id},
-      function: extractText
+      function: extractHTML
     });
 
     const text = extracted[0].result;
 
+    const payload = {
+      input_text: text,
+      url: location.href
+    };
+
+    // Add user query if provided
+    if (userQuery) {
+      payload.user_query = userQuery;
+    }
+
     const result = await sendMessage('fetchList', {
-      data: {"input_text": text,
-             url: location.href}
+      data: payload
     });
+
     if (!result.success) {
       throw new Error(result.error);
     }
@@ -152,11 +244,13 @@ function displayEvents(data) {
   if (!allEvents || allEvents.length === 0) {
     resultsDiv.innerHTML = '<p class="no-events">No events found on this page.</p>';
     document.getElementById('submitBtn').classList.add('hidden');
+    document.getElementById('submitInfo').classList.add('hidden');
     return;
   }
 
   // Show submit button
   document.getElementById('submitBtn').classList.remove('hidden');
+  document.getElementById('submitInfo').style.display = '';
   document.getElementById('submitBtn').disabled = true;
 
   // Build HTML for events
@@ -378,6 +472,7 @@ async function submitSelectedEvents() {
   const events = Array.from(filteredEvents).map(item => {
     return {
       summary: item.title,
+      location: item.location,
       start: {
         dateTime: item.start_time,
         timeZone: item.time_zone

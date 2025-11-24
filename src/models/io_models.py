@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Literal
+from typing import List, Literal, Optional
 import pytz as tz
 
 from pydantic import BaseModel
@@ -17,7 +17,7 @@ TimezoneType = Literal[tuple(tz.all_timezones)]
 class Event(BaseModel):
     title: str
     start_time: datetime
-    end_time: datetime
+    end_time: Optional[datetime] = None
     time_zone: TimezoneType
     location: str | None
 
@@ -34,7 +34,12 @@ class Event(BaseModel):
     def model_dump(self, **kwargs):
         data = super().model_dump(**kwargs)
         data['start_time'] = self.start_time.isoformat()
-        data['end_time'] = self.end_time.isoformat()
+        if self.end_time:
+            data['end_time'] = self.end_time.isoformat()
+        else:
+            data['end_time'] = None
+        data["day_of_week"] = self.start_time.strftime("%A")
+        data["day_of_week"] = self.start_time.strftime("%A")  # Enables filtering based on weekend yes/no
         return data
 
 

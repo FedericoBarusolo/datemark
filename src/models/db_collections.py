@@ -23,6 +23,7 @@ class UserSubscription:
     user_id: str
     tier_name: str
     subscribed_at: datetime
+    user_email: Optional[str]
     expires_at: Optional[datetime]
     stripe_subscription_id: Optional[str]
     status: str

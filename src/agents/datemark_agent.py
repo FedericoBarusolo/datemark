@@ -2,7 +2,10 @@ from langgraph.graph import END, StateGraph
 from langgraph.graph.state import CompiledStateGraph
 
 from agents.base import AgentBase
-from agents.nodes import generate_events_list, validate_events
+from agents.nodes import (preprocess_web_page,
+                          generate_events_list,
+                          validate_events,
+                          filter_events_by_user_query)
 
 from models.agent_states import DatemarkAgentState
 from models.io_models import AgentResponse
@@ -28,11 +31,20 @@ def initialize_datemark_agent(checkpointer) -> CompiledStateGraph:
     """
     workflow = StateGraph(DatemarkAgentState)
 
+    workflow.add_node("preprocess_web_page", preprocess_web_page)
     workflow.add_node("generate_events_list", generate_events_list)
+    workflow.add_node("filter_events_by_user_query", filter_events_by_user_query)
     workflow.add_node("validate_events", validate_events)
 
-    workflow.set_entry_point("generate_events_list")
-    workflow.add_edge("generate_events_list", "validate_events")
+    workflow.set_entry_point("preprocess_web_page")
+    workflow.add_edge("preprocess_web_page", "generate_events_list")
+    workflow.add_conditional_edges("generate_events_list",
+                                   lambda state: state.get("user_query") is not None,
+                                   {
+                                       True: "filter_events_by_user_query",
+                                       False: "validate_events",
+                                   })
+    workflow.add_edge("filter_events_by_user_query", "validate_events")
     workflow.add_edge("validate_events", END)
 
     graph = workflow.compile(
@@ -68,7 +80,7 @@ class DatemarkAgent(AgentBase):
 
         return langgraph_agent_executor
 
-    async def run_datemark_agent(self, input_text: str, thread_id: str) -> AgentResponse:
+    async def run_datemark_agent(self, input_text: str, thread_id: str, user_query: str | None = None) -> AgentResponse:
         """
         Execute the Datemark agent to extract and validate events from text.
 
@@ -80,13 +92,19 @@ class DatemarkAgent(AgentBase):
                 to extract.
             thread_id: Unique identifier for the conversation thread, used for
                 state persistence across multiple invocations.
+            user_query: A natural language user query containing conditions for
+                events filtering.
 
         Returns:
             An AgentResponse containing a success message and the extracted,
             validated event list.
         """
+        agent_payload = dict(input_text=input_text)
+        if user_query is not None:
+            agent_payload.update(dict(user_query=user_query))
+
         resp = await self.agent.ainvoke(
-            dict(input_text=input_text),
+            agent_payload,
             debug=False,
             context=dict(model=self.llm),
             config=dict(configurable={"thread_id": thread_id})

@@ -23,14 +23,42 @@ Generate a list of events by extracting information from the provided text, in t
     </Event1>
 </Events>
 
-Important: 
+Instructions: 
+- Consider this as today's date: {current_date}
+- In the input text, only look for events that have at least a date indication, do not create an event if you don't find its date
+- There is no limit on the events to create, if you find counters in text, please ignore
 - All datetime values MUST include timezone information (e.g., +01:00 for CET, +02:00 for CEST)
 - Use ISO 8601 format with timezone offset: YYYY-MM-DDTHH:MM:SS+TZ:TZ
 - If the year is not specified, use current year: {current_year}
 - Try to infer the timezone from the context of the input text, in this way:
-    1. Try to infer the timezone for each event independently from the event location (best and easyest option)
-    2. If option 1. is not viable for any reason, seek for context in the page that helps you define a shared 
-        timezone for all events (e.g. a webpage that reports all events in New York, for instance)
+    1. Try to infer the timezone for each event independently from the event location (best and easiest option)
+    2. If option 1. is not viable for any reason, seek for context in the page that helps you define a shared timezone for all events (e.g. a webpage that reports all events in New York, for instance)
         
 Do not overdo the task, if you don't find any event, do not generate anything as result.
+""")
+
+filter_events_by_user_query_prompt = PromptTemplate.from_template("""
+Analyze the following list of events:
+
+# INPUT EVENTS
+
+{event_list}
+______________________________________________________
+
+Now filter the events in the list based on the following user query:
+
+# USER QUERY
+
+{user_query}
+______________________________________________________
+
+Instructions:
+- Consider this as today's date: {current_date} (useful for relative time references, e.g. 'today', 'next weekend', ...)
+- The ONLY action you can do is remove elements from the list
+- Do NOT consider day of week for the output model
+- Absolutely DO NOT add, remove or change any information to events (other than day of week)
+- If a user query requires information or context you don't have, just avoid applying any filter
+  (e.g. events near my house --> IGNORE, you don't know where the user lives
+        events near Milan --> OK, Milan is an absolute reference)
+- DO NOT invent, interpret or make assumptions. If you're not sure enough do not apply any filter
 """)
