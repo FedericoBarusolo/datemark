@@ -1,3 +1,9 @@
+## 1.0.2 (2025-11-24)
+
+### Feat
+
+- validate all events' dates before creation
+
 ## 1.0.1 (2025-11-21)
 
 ### Refactor
