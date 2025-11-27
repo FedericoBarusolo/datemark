@@ -39,7 +39,8 @@ async def datemark_agent(body: dict, authorization: str = Header(...)):
 
     # verify user quota
     user_id = user_info.get('id') or user_info.get('sub')
-    quota_info = verify_user_quota(user_id, body)
+    user_email = user_info.get('email')
+    quota_info = verify_user_quota(user_id, body, user_email=user_email)
 
     input_text = body["input_text"]
     user_query = body.get("user_query")
