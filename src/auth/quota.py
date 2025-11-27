@@ -107,7 +107,7 @@ def increment_user_usage(user_id: str, increment: int = 1):
     return usage_count
 
 
-def verify_user_quota(user_id: str, body: Dict[str, Any]) -> Dict[str, Any]:
+def verify_user_quota(user_id: str, body: Dict[str, Any], user_email: Optional[str] = None) -> Dict[str, Any]:
     """
     Verify that user has sufficient quota remaining to perform the requested operation.
 
@@ -121,6 +121,7 @@ def verify_user_quota(user_id: str, body: Dict[str, Any]) -> Dict[str, Any]:
         user_id: Unique user identifier
         body: Request body dictionary, checked for 'user_query' field to determine
               if this is a filtering query requiring 2 credits
+        user_email: Optional user email
 
     Raises:
         HTTPException: 429 status if quota is exceeded or insufficient for the operation
@@ -129,7 +130,7 @@ def verify_user_quota(user_id: str, body: Dict[str, Any]) -> Dict[str, Any]:
         Dict containing user quota information with keys: user_id, tier_name,
         monthly_limit, current_month, usage_this_month, remaining, is_unlimited, status
     """
-    quota_info = get_or_create_user_quota(user_id=user_id)
+    quota_info = get_or_create_user_quota(user_id=user_id, user_email=user_email)
 
     logger.info(quota_info)
 
