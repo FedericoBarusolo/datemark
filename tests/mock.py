@@ -130,3 +130,64 @@ class MockUsageDB:
 def mock_init_chat_model(model, model_provider, temperature):
     print("mocking function init_chat_model")
     return None
+
+
+class MockCollection:
+    class MockDoc:
+        class Content:
+            content: list
+            exists: bool
+
+            def __init__(self, content):
+                self.content = content
+                self.exists = bool(len(self.content))
+            def to_dict(self):
+                if self.content:
+                    return self.content[0]
+                else:
+                    return {}
+
+        content: Content
+        def __init__(self, content):
+            self.content = content
+            self.reference = self.Reference(self)
+        def set(self, content, merge=False):
+            self.content.content.append(content)
+            self.content.exists = bool(len(self.content.content))
+        def get(self):
+            return self.content
+        class Reference:
+            def __init__(self, parent_doc):
+                self.doc = parent_doc
+            def delete(self):
+                self.doc.content.content = []
+
+    docs = [{"name": "a", "content": MockDoc(MockDoc.Content([]))}]
+
+    def stream(self):
+        return [doc["content"] for doc in self.docs]
+
+    def document(self, doc_name):
+        try:
+            return [doc for doc in self.docs if doc["name"] == doc_name][0]["content"]
+        except IndexError:
+            new_doc = self.MockDoc(self.MockDoc.Content([]))
+            self.docs += [{"name": doc_name, "content": new_doc}]
+            return new_doc
+
+
+class MockDb:
+    def __init__(self, project, database):
+        self.project = project
+        self.database = database
+        self.collections = [{"name": cst.USG_DB_TIERS, "content": MockCollection()},
+                            {"name": cst.USG_DB_USERS, "content": MockCollection()},
+                            {"name": cst.USG_DB_USAGE, "content": MockCollection()}]
+
+    def collection(self, collection_name):
+        return [coll for coll in self.collections if coll["name"] == collection_name][0]["content"]
+
+
+def mock_firestore_client(project, database):
+    print("mocking class firestore.Client")
+    return MockDb(project=project, database=database)
