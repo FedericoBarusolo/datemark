@@ -1,3 +1,9 @@
+## 1.0.3 (2025-11-28)
+
+### Fix
+
+- missing propagation of user_email argument
+
 ## 1.0.2 (2025-11-24)
 
 ### Refactor
