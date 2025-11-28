@@ -4,6 +4,11 @@ from datetime import datetime as dt
 from agents import nodes as nd
 from models.io_models import Event, EventList
 from models.agent_states import DatemarkAgentState
+from models.agent_configs import DatemarkAgentConfig
+
+from langgraph.runtime import Runtime
+
+from tests import mock
 
 
 @pytest.mark.unit
@@ -93,35 +98,35 @@ async def test_validate_event_times(event, output):
                                                                                                "%Y-%m-%d %H.%M"),
                                                                         time_zone="Tatooine/Mos Eisley",
                                                                         location="Mos Eisley, Chalmun's Cantina")])
-                                              ),{},
+                                              ), {},
                            {"event_list": EventList(events=[
-                                                  Event.model_construct(title="Cantina Band Concert#1",
-                                                                        start_time=dt.strptime("2025-01-01 "
-                                                                                               "20.00",
-                                                                                               "%Y-%m-%d %H.%M"),
-                                                                        end_time=dt.strptime("2025-01-01 "
-                                                                                             "21.00",
-                                                                                             "%Y-%m-%d %H.%M"),
-                                                                        time_zone="Tatooine/Mos Eisley",
-                                                                        location="Mos Eisley, Chalmun's Cantina"),
-                                                  Event.model_construct(title="Cantina Band Concert#2",
-                                                                        start_time=dt.strptime("2025-01-02 "
-                                                                                               "20.00",
-                                                                                               "%Y-%m-%d %H.%M"),
-                                                                        end_time=dt.strptime("2025-01-02 "
-                                                                                             "21.00",
-                                                                                             "%Y-%m-%d %H.%M"),
-                                                                        time_zone="Tatooine/Mos Eisley",
-                                                                        location="Mos Eisley, Chalmun's Cantina"),
-                                                  Event.model_construct(title="Cantina Band Concert#3",
-                                                                        start_time=dt.strptime("2025-01-02 "
-                                                                                               "20.00",
-                                                                                               "%Y-%m-%d %H.%M"),
-                                                                        end_time=dt.strptime("2025-01-02 "
-                                                                                             "21.00",
-                                                                                             "%Y-%m-%d %H.%M"),
-                                                                        time_zone="Tatooine/Mos Eisley",
-                                                                        location="Mos Eisley, Chalmun's Cantina")])})])
+                               Event.model_construct(title="Cantina Band Concert#1",
+                                                     start_time=dt.strptime("2025-01-01 "
+                                                                            "20.00",
+                                                                            "%Y-%m-%d %H.%M"),
+                                                     end_time=dt.strptime("2025-01-01 "
+                                                                          "21.00",
+                                                                          "%Y-%m-%d %H.%M"),
+                                                     time_zone="Tatooine/Mos Eisley",
+                                                     location="Mos Eisley, Chalmun's Cantina"),
+                               Event.model_construct(title="Cantina Band Concert#2",
+                                                     start_time=dt.strptime("2025-01-02 "
+                                                                            "20.00",
+                                                                            "%Y-%m-%d %H.%M"),
+                                                     end_time=dt.strptime("2025-01-02 "
+                                                                          "21.00",
+                                                                          "%Y-%m-%d %H.%M"),
+                                                     time_zone="Tatooine/Mos Eisley",
+                                                     location="Mos Eisley, Chalmun's Cantina"),
+                               Event.model_construct(title="Cantina Band Concert#3",
+                                                     start_time=dt.strptime("2025-01-02 "
+                                                                            "20.00",
+                                                                            "%Y-%m-%d %H.%M"),
+                                                     end_time=dt.strptime("2025-01-02 "
+                                                                          "21.00",
+                                                                          "%Y-%m-%d %H.%M"),
+                                                     time_zone="Tatooine/Mos Eisley",
+                                                     location="Mos Eisley, Chalmun's Cantina")])})])
 async def test_validate_events(state, runtime, output):
     assert await nd.validate_events(state, runtime) == output
 
@@ -169,3 +174,135 @@ async def test_validate_events(state, runtime, output):
                          ])
 async def test_preprocess_web_page(state, runtime, output):
     assert await nd.preprocess_web_page(state, runtime) == output
+
+
+@pytest.mark.unit
+@pytest.mark.asyncio
+@pytest.mark.parametrize("state,runtime,output",
+                         [(DatemarkAgentState(input_text="""
+                                                           [{"title": "Cantina Band Concert", 
+                                                             "start_time": "2025-01-01 20.00", 
+                                                             "end_time": "2025-01-01 21.00", 
+                                                             "time_zone": "Tatooine/Mos Eisley", 
+                                                             "location": "Mos Eisley, Chalmun's Cantina"}]
+                                                           """
+                                              ),
+                           Runtime(
+                               context=dict(DatemarkAgentConfig.model_construct(model=mock.MockAgentModel()))),
+                           DatemarkAgentState(event_list=EventList(events=[
+                               Event.model_construct(title="Cantina Band Concert",
+                                                     start_time=dt.strptime("2025-01-01 20.00", "%Y-%m-%d %H.%M"),
+                                                     end_time=dt.strptime("2025-01-01 21.00", "%Y-%m-%d %H.%M"),
+                                                     time_zone="Tatooine/Mos Eisley",
+                                                     location="Mos Eisley, Chalmun's Cantina")
+                           ]))
+                           ),
+                          (DatemarkAgentState(input_text="""
+                                                           [{"title": "Cantina Band Concert", 
+                                                             "start_time": "2025-01-01 20.00",
+                                                             "time_zone": "Tatooine/Mos Eisley", 
+                                                             "location": "Mos Eisley, Chalmun's Cantina"}]
+                                                           """
+                                              ),
+                           Runtime(context=dict(DatemarkAgentConfig.model_construct(model=mock.MockAgentModel()))),
+                           DatemarkAgentState(event_list=EventList(events=[
+                               Event.model_construct(title="Cantina Band Concert",
+                                                     start_time=dt.strptime("2025-01-01 20.00",
+                                                                            "%Y-%m-%d %H.%M"),
+                                                     time_zone="Tatooine/Mos Eisley",
+                                                     location="Mos Eisley, Chalmun's Cantina")
+                           ]))
+                           ),
+                          (DatemarkAgentState(input_text="""
+                                                           [{"foo": "nonsensical content"}]
+                                                           """
+                                              ),
+                           Runtime(context=dict(DatemarkAgentConfig.model_construct(model=mock.MockAgentModel()))),
+                           ValueError
+                           )])
+async def test_generate_events_list(state, runtime, output, monkeypatch):
+    monkeypatch.setattr(nd, "event_list_prompt", "{input_text}")
+
+    if isinstance(output, type(Exception)):
+        with pytest.raises(output, match="Invalid response from the model"):
+            await nd.generate_events_list(state, runtime)
+    else:
+        assert await nd.generate_events_list(state, runtime) == output
+
+
+@pytest.mark.unit
+@pytest.mark.asyncio
+@pytest.mark.parametrize("state,runtime,output",
+                         [(DatemarkAgentState(event_list=EventList(events=[
+                             Event.model_construct(title="Cantina Band Concert#1",
+                                                   start_time=dt.strptime("2025-01-01 20.00", "%Y-%m-%d %H.%M"),
+                                                   end_time=dt.strptime("2025-01-01 21.00", "%Y-%m-%d %H.%M"),
+                                                   time_zone="Tatooine/Mos Eisley",
+                                                   location="Mos Eisley, Chalmun's Cantina"),
+
+                             Event.model_construct(title="Cantina Band Concert#2",
+                                                   start_time=dt.strptime("2025-01-02 21.00", "%Y-%m-%d %H.%M"),
+                                                   end_time=dt.strptime("2025-01-02 23.00", "%Y-%m-%d %H.%M"),
+                                                   time_zone="Tatooine/Mos Eisley",
+                                                   location="Mos Eisley, Chalmun's Cantina")
+                         ]),
+                             user_query="""
+                                                            [{"title": "Cantina Band Concert#1", 
+                                                             "start_time": "2025-01-01 20.00", 
+                                                             "end_time": "2025-01-01 21.00", 
+                                                             "time_zone": "Tatooine/Mos Eisley", 
+                                                             "location": "Mos Eisley, Chalmun's Cantina"}]
+                                                """
+                         ),
+                           Runtime(
+                               context=dict(DatemarkAgentConfig.model_construct(model=mock.MockAgentModel()))),
+                           DatemarkAgentState(event_list=EventList(events=[
+                               Event.model_construct(title="Cantina Band Concert#1",
+                                                     start_time=dt.strptime("2025-01-01 20.00", "%Y-%m-%d %H.%M"),
+                                                     end_time=dt.strptime("2025-01-01 21.00", "%Y-%m-%d %H.%M"),
+                                                     time_zone="Tatooine/Mos Eisley",
+                                                     location="Mos Eisley, Chalmun's Cantina")
+                           ]))
+                         ),
+                             (DatemarkAgentState(event_list=EventList(events=[
+                                 Event.model_construct(title="Cantina Band Concert#1",
+                                                       start_time=dt.strptime("2025-01-01 20.00", "%Y-%m-%d %H.%M"),
+                                                       end_time=dt.strptime("2025-01-01 21.00", "%Y-%m-%d %H.%M"),
+                                                       time_zone="Tatooine/Mos Eisley",
+                                                       location="Mos Eisley, Chalmun's Cantina"),
+
+                                 Event.model_construct(title="Cantina Band Concert#2",
+                                                       start_time=dt.strptime("2025-01-02 21.00", "%Y-%m-%d %H.%M"),
+                                                       end_time=dt.strptime("2025-01-02 23.00", "%Y-%m-%d %H.%M"),
+                                                       time_zone="Tatooine/Mos Eisley",
+                                                       location="Mos Eisley, Chalmun's Cantina")
+                             ]),
+                                 user_query="""
+                                                    Very nonsensical user query!!
+                                                """
+                             ),
+                              Runtime(
+                                  context=dict(DatemarkAgentConfig.model_construct(model=mock.MockAgentModel()))),
+                              DatemarkAgentState(event_list=EventList(events=[
+                                  Event.model_construct(title="Cantina Band Concert#1",
+                                                        start_time=dt.strptime("2025-01-01 20.00", "%Y-%m-%d %H.%M"),
+                                                        end_time=dt.strptime("2025-01-01 21.00", "%Y-%m-%d %H.%M"),
+                                                        time_zone="Tatooine/Mos Eisley",
+                                                        location="Mos Eisley, Chalmun's Cantina"),
+
+                                  Event.model_construct(title="Cantina Band Concert#2",
+                                                        start_time=dt.strptime("2025-01-02 21.00", "%Y-%m-%d %H.%M"),
+                                                        end_time=dt.strptime("2025-01-02 23.00", "%Y-%m-%d %H.%M"),
+                                                        time_zone="Tatooine/Mos Eisley",
+                                                        location="Mos Eisley, Chalmun's Cantina")
+                              ])
+                              )
+                             )])
+async def test_filter_events_by_user_query(state, runtime, output, monkeypatch):
+    monkeypatch.setattr(nd, "filter_events_by_user_query_prompt", "{user_query}")
+
+    if isinstance(output, type(Exception)):
+        with pytest.raises(output, match="Invalid response from the model"):
+            await nd.filter_events_by_user_query(state, runtime)
+    else:
+        assert await nd.filter_events_by_user_query(state, runtime) == output
