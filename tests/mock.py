@@ -3,7 +3,9 @@ import json
 import requests
 from datetime import datetime
 from typing import List, Optional
+from pydantic import BaseModel
 
+from models.io_models import Event
 from models.db_collections import UserSubscription, SubscriptionTier
 from utils import constants as cst
 
@@ -191,3 +193,26 @@ class MockDb:
 def mock_firestore_client(project, database):
     print("mocking class firestore.Client")
     return MockDb(project=project, database=database)
+
+
+class MockAgentModel:
+    output_model: BaseModel
+
+    def get(self, arg):
+        return
+
+    def with_structured_output(self, schema):
+        self.output_model = schema
+        return self
+
+    async def ainvoke(self, _input):
+        events = json.loads(_input[0].content)
+        try:
+            for ev in events:
+                ev["start_time"] = datetime.strptime(ev["start_time"], cst.DATE_TIME_STANDARD_FMT)
+                if ev.get("end_time"):
+                    ev["end_time"] = datetime.strptime(ev["end_time"], cst.DATE_TIME_STANDARD_FMT)
+
+            return self.output_model.model_construct(events=[Event.model_construct(**ev) for ev in events])
+        except:
+            return {}

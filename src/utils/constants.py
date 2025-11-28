@@ -1,3 +1,4 @@
+DATE_TIME_STANDARD_FMT = "%Y-%m-%d %H.%M"
 DATE_STANDARD_FMT = "%Y-%m-%d"
 DATE_STANDARD_MONTH = "%Y-%m"
 
