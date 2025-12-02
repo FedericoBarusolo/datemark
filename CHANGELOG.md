@@ -1,3 +1,9 @@
+## 1.0.4 (2025-12-02)
+
+### Fix
+
+- update prompt to better handle timezones
+
 ## 1.0.3 (2025-11-28)
 
 ### Fix
