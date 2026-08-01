@@ -82,7 +82,8 @@ async def generate_events_list(
     """
     input_text = state["input_text"]
 
-    model_w_structured_output = runtime.context["model"].with_structured_output(schema=EventList)
+    model_w_structured_output = runtime.context["model"].with_structured_output(schema=EventList,
+    method="json_mode")
 
     logger.info(f"Processing the textual input: {input_text[:500]}")
 

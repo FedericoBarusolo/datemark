@@ -9,7 +9,7 @@ Analyze the following text:
 {input_text}
 ______________________________________________________
 
-Generate a list of events by extracting information from the provided text, in the following format:
+Generate a list of events by extracting information from the provided text, with the following information:
 <Events>
     <Event0>
         <title> Event Title </title>
@@ -22,6 +22,9 @@ Generate a list of events by extracting information from the provided text, in t
     ...
     </Event1>
 </Events>
+
+Return your answer as JSON with this exact structure:
+{{"events": [{{"title": "...", "start_time": "...", "end_time": "...", "location": "..."}}]}}
 
 Instructions: 
 - Consider this as today's date: {current_date}
