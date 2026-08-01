@@ -201,7 +201,7 @@ class MockAgentModel:
     def get(self, arg):
         return
 
-    def with_structured_output(self, schema):
+    def with_structured_output(self, schema, method=None):
         self.output_model = schema
         return self
 
