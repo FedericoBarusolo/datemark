@@ -8,6 +8,7 @@ from pydantic import BaseModel
 available_llm_providers = Literal["groq", "openai", "anthropic", "google_vertexai"]
 available_llm_models = Literal["llama-3.1-8b-instant",
                                "llama-3.3-70b-versatile",
+                               "openai/gpt-oss-120b",
                                "gpt-4o-mini",
                                "claude-3-5-haiku-latest"]
 
@@ -18,7 +19,7 @@ class Event(BaseModel):
     title: str
     start_time: datetime
     end_time: Optional[datetime] = None
-    time_zone: TimezoneType
+    time_zone: TimezoneType = None
     location: str | None
 
     def __str__(self):
