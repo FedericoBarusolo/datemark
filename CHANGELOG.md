@@ -1,3 +1,14 @@
+## 1.0.5 (2026-09-05)
+
+### Fix
+
+- update prompt to better handle timezones
+- missing propagation of user_email argument
+
+### Refactor
+
+- update dismissed llama model
+
 ## 1.0.4 (2025-12-02)
 
 ### Fix
