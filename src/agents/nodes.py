@@ -146,15 +146,15 @@ async def filter_events_by_user_query(
                                                                                    cst.DATE_STANDARD_FMT)))
             ]
         )
-    except Exception as e:
-        logger.info(
-            f"Error generating response: {e}"
+    except Exception:
+        logger.exception(
+            "Error filtering events by user query, returning unfiltered events"
         )
         return {"event_list": event_list}
 
     if not isinstance(response, EventList):
-        logger.info(
-            "The response from the model is not valid. Expected a SystemDetails."
+        logger.error(
+            "The response from the model is not valid. Expected an EventList, returning unfiltered events."
         )
         return {"event_list": event_list}
     else:
