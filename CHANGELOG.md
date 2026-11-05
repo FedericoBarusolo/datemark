@@ -1,3 +1,14 @@
+## 1.0.7 (2026-11-05)
+
+### Fix
+
+- silenta fail in user filtering query due to missing time zone
+
+### Refactor
+
+- allow antropic's haiku 5.5 model
+- update dismissed llama model
+
 ## 1.0.6 (2026-11-05)
 
 ### Fix
