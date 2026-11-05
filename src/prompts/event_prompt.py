@@ -30,6 +30,9 @@ Instructions:
 - Consider this as today's date: {current_date}
 - In the input text, only look for events that have at least a date indication, 
     do not create an event if you don't find its date
+- If, and only if, you don't find any date for the event, try to infer it from the type of event 
+    e.g. concert probably at night (20.00), hike probably in the morning (8:00), ... 
+    if you can't tell use midday (12.00 PM)
 - There is no limit on the events to create, if you find counters in text, please ignore
 - All datetime values MUST include timezone information (e.g., +01:00 for CET, +02:00 for CEST)
 - Use ISO 8601 format with timezone offset: YYYY-MM-DDTHH:MM:SS+TZ:TZ
