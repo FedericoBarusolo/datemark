@@ -20,7 +20,7 @@ class Event(BaseModel):
     title: str
     start_time: datetime
     end_time: Optional[datetime] = None
-    time_zone: TimezoneType = None
+    time_zone: TimezoneType | None = None
     location: str | None
 
     def __str__(self):

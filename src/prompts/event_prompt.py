@@ -15,6 +15,7 @@ Generate a list of events by extracting information from the provided text, with
         <title> Event Title </title>
         <start_time> 2025-01-01T20:30:00+01:00 </start_time>
         <end_time> 2025-01-01T22:00:00+01:00 </end_time>
+        <time_zone> Europe/London </time_zone>
         <location> The O2, Peninsula Square, London SE10 0DX, United Kingdom </location>
     </Event0>
     
@@ -24,7 +25,7 @@ Generate a list of events by extracting information from the provided text, with
 </Events>
 
 Return your answer as JSON with this exact structure:
-{{"events": [{{"title": "...", "start_time": "...", "end_time": "...", "location": "..."}}]}}
+{{"events": [{{"title": "...", "start_time": "...", "end_time": "...", "time_zone": "...", "location": "..."}}]}}
 
 Instructions: 
 - Consider this as today's date: {current_date}
