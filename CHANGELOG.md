@@ -1,3 +1,15 @@
+## 1.0.6 (2026-11-05)
+
+### Fix
+
+- update prompt to better handle timezones
+- missing propagation of user_email argument
+
+### Refactor
+
+- allow antropic's haiku 5.5 model
+- update dismissed llama model
+
 ## 1.0.5 (2026-09-05)
 
 ### Fix
