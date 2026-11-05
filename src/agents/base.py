@@ -30,7 +30,13 @@ class AgentBase:
         self.llm_model = llm_model
         self.temperature = temperature
 
-        self.llm = init_chat_model(self.llm_model, model_provider=self.llm_provider, temperature=0)
+        llm_kwargs = dict(model_provider=self.llm_provider)
+        if self.llm_provider == "anthropic":
+            # Claude 5.x models reject non-default sampling params; thinking counts toward max_tokens
+            llm_kwargs["max_tokens"] = 16000
+        else:
+            llm_kwargs["temperature"] = self.temperature
+        self.llm = init_chat_model(self.llm_model, **llm_kwargs)
 
         self.toolkit = self._init_toolkit()
 

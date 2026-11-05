@@ -10,7 +10,8 @@ available_llm_models = Literal["llama-3.1-8b-instant",
                                "llama-3.3-70b-versatile",
                                "openai/gpt-oss-120b",
                                "gpt-4o-mini",
-                               "claude-3-5-haiku-latest"]
+                               "claude-3-5-haiku-latest",
+                               "claude-haiku-5-5"]
 
 TimezoneType = Literal[tuple(tz.all_timezones)]
 
